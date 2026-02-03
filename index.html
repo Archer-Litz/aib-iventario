@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borderland OS v4.0 - Full System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --neon-red: #ff003c;
+            --neon-dim: #5a0015;
+            --bg-color: #050505;
+            --slot-bg: #0f0f0f;
+            --grid-line: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg-color);
+            color: #e0e0e0;
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Grid System */
+        .mc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 340px;
+            aspect-ratio: 1/1;
+            background: #111;
+            padding: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .mc-slot {
+            background: var(--slot-bg);
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+
+        .mc-slot:hover { border-color: #555; }
+        
+        .mc-slot.occupied {
+            background: linear-gradient(135deg, #1a0505 0%, #000 100%);
+            border: 1px solid var(--neon-red);
+            box-shadow: inset 0 0 10px rgba(255,0,60,0.1);
+        }
+
+        .item-size-1 { grid-column: span 1; grid-row: span 1; }
+        .item-size-2 { grid-column: span 2; grid-row: span 1; }
+        .item-size-3 { grid-column: span 3; grid-row: span 1; }
+
+        /* Navigation Tabs */
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn.active {
+            background: var(--neon-red);
+            color: black;
+            border-color: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+            font-weight: bold;
+        }
+
+        .nav-btn:hover:not(.active) {
+            border-color: #666;
+            color: #fff;
+        }
+
+        /* Rarities */
+        .rarity-comum { color: #a1a1aa; border-color: #52525b; }
+        .rarity-incomum { color: #4ade80; border-color: #059669; }
+        .rarity-raro { color: #3b82f6; border-color: #1d4ed8; }
+        .rarity-épico { color: #d946ef; border-color: #a21caf; }
+        .rarity-lendário { color: #fbbf24; border-color: #b45309; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-red); }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="crt min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex justify-between items-end mb-6 border-b border-[#33000d] pb-4 px-2">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-[#ff003c] tracking-tighter" style="text-shadow: 0 0 10px rgba(255,0,60,0.5);">
+                BORDERLAND OS <span class="text-white text-sm align-top opacity-50">v4.0</span>
+            </h1>
+            <p class="text-[10px] tracking-[0.4em] text-zinc-500 uppercase mt-1">SISTEMA DE SOBREVIVÊNCIA INTEGRADO</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="exportarImagem()" class="border border-[#ff003c] text-[#ff003c] px-3 py-1 text-[10px] uppercase hover:bg-[#ff003c] hover:text-black transition-colors">
+                Salvar Imagem
+            </button>
+            <button onclick="limparTudo()" class="border border-zinc-700 text-zinc-500 px-3 py-1 text-[10px] uppercase hover:text-white hover:border-white transition-colors">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <div class="w-full max-w-4xl mb-6 grid grid-cols-3 gap-2">
+        <button onclick="mudarAba('mochila')" id="tab-btn-mochila" class="nav-btn active py-3 text-xs md:text-sm">
+            MOCHILA
+        </button>
+        <button onclick="mudarAba('loot')" id="tab-btn-loot" class="nav-btn py-3 text-xs md:text-sm">
+            BANCO DE DADOS
+        </button>
+        <button onclick="mudarAba('craft')" id="tab-btn-craft" class="nav-btn py-3 text-xs md:text-sm">
+            FABRICAÇÃO
+        </button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-4xl bg-black/60 border border-zinc-900 p-1 md:p-6 min-h-[500px] relative backdrop-blur-sm shadow-2xl">
+        
+        <!-- ABA 1: MOCHILA (GRID) -->
+        <div id="tab-mochila" class="tab-content active h-full">
+            <div class="flex flex-col md:flex-row gap-8 items-start justify-center h-full">
+                
+                <!-- O Grid -->
+                <div class="flex flex-col items-center w-full md:w-auto">
+                    <div class="flex justify-between w-full max-w-[340px] mb-2 text-[10px] text-zinc-500 uppercase tracking-widest">
+                        <span>Grid de Inventário</span>
+                        <span id="slot-counter" class="text-[#ff003c]">0 / 9</span>
+                    </div>
+                    
+                    <div id="inventory-capture" class="bg-black p-2 border border-zinc-800">
+                        <div id="main-grid" class="mc-grid">
+                            <!-- Slots JS -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center max-w-xs">
+                        <p class="text-[10px] text-zinc-600">
+                            Clique em um item para removê-lo ou ver detalhes.
+                            Itens maiores ocupam múltiplas células horizontais.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Status Lateral -->
+                <div class="flex-grow w-full md:w-64 space-y-4">
+                    <div class="border border-zinc-800 p-4 bg-zinc-900/30">
+                        <h3 class="text-xs text-[#ff003c] font-bold uppercase mb-2">Status da Carga</h3>
+                        <div class="w-full bg-black h-2 mb-1 border border-zinc-800">
+                            <div id="bar-carga" class="h-full bg-[#ff003c] w-0 transition-all duration-500"></div>
+                        </div>
+                        <p class="text-[9px] text-zinc-500 text-right">CAPACIDADE DO SISTEMA</p>
+                    </div>
+
+                    <div class="border border-zinc-800 p-4 bg-zinc-900/30 min-h-[200px]">
+                        <h3 class="text-xs text-zinc-400 font-bold uppercase mb-4">Registro de Atividades</h3>
+                        <ul id="activity-log" class="space-y-2 text-[10px] font-mono opacity-80 max-h-[200px] overflow-y-auto">
+                            <!-- Logs -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: LOOT / DATABASE -->
+        <div id="tab-loot" class="tab-content h-full">
+            <div class="flex flex-col h-full">
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="search-loot" oninput="renderDatabase()" placeholder="BUSCAR ITEM..." 
+                        class="flex-grow bg-black border border-zinc-700 p-3 text-xs text-white outline-none focus:border-[#ff003c]">
+                    <select id="filter-loot" onchange="renderDatabase()" class="bg-black border border-zinc-700 p-3 text-xs text-white outline-none">
+                        <option value="all">TODOS</option>
+                        <option value="Comum">COMUM</option>
+                        <option value="Incomum">INCOMUM</option>
+                        <option value="Raro">RARO</option>
+                        <option value="Épico">ÉPICO</option>
+                        <option value="Lendário">LENDÁRIO</option>
+                    </select>
+                </div>
+
+                <div id="database-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+                    <!-- Itens JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 3: CRAFTING -->
+        <div id="tab-craft" class="tab-content h-full">
+            <div class="flex flex-col md:flex-row h-full gap-6">
+                <!-- Lista de Receitas -->
+                <div class="w-full md:w-1/2 flex flex-col">
+                    <h3 class="text-xs text-zinc-500 uppercase tracking-widest mb-3">Receitas Disponíveis</h3>
+                    <div id="recipes-list" class="space-y-2 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+                        <!-- Receitas JS -->
+                    </div>
+                </div>
+
+                <!-- Detalhe da Receita -->
+                <div class="w-full md:w-1/2 border-l border-zinc-800 pl-0 md:pl-6 flex flex-col justify-center items-center text-center opacity-50" id="craft-preview">
+                    <i data-lucide="hammer" size="48" class="mb-4"></i>
+                    <p class="text-xs uppercase tracking-widest">Selecione uma receita</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Notification -->
+    <div id="notification-area" class="fixed bottom-4 right-4 z-50 pointer-events-none space-y-2"></div>
+
+    <script>
+        // --- BASE DE DADOS COMPLETA (75 Itens) ---
+        const ITEMS = [
+            // MATERIAIS BÁSICOS (9)
+            { id: 'mat_01', nome: "Sucata de Metal", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_02', nome: "Pólvora", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_03', nome: "Tecido", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_04', nome: "Plástico", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_05', nome: "Vidro Quebrado", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_06', nome: "Madeira", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_07', nome: "Componente Eletrônico", tipo: "Material", raridade: "Incomum", slots: 1 },
+            { id: 'mat_08', nome: "Fio de Cobre", tipo: "Material", raridade: "Comum", slots: 1 },
+            { id: 'mat_09', nome: "Prego Enferrujado", tipo: "Material", raridade: "Comum", slots: 1 },
+
+            // MATERIAIS INTERMEDIÁRIOS (5)
+            { id: 'int_01', nome: "Placa de Aço", tipo: "Componente", raridade: "Raro", slots: 1 },
+            { id: 'int_02', nome: "Circuito Integrado", tipo: "Componente", raridade: "Raro", slots: 1 },
+            { id: 'int_03', nome: "Tecido Kevlar", tipo: "Componente", raridade: "Épico", slots: 1 },
+            { id: 'int_04', nome: "Pólvora Refinada", tipo: "Componente", raridade: "Raro", slots: 1 },
+            { id: 'int_05', nome: "Lente Óptica", tipo: "Componente", raridade: "Raro", slots: 1 },
+
+            // FERRAMENTAS & ARMAS BRANCAS (Slots ajustados)
+            { id: 'wpn_01', nome: "Taco de Beisebol (Madeira)", tipo: "Arma Branca", raridade: "Incomum", slots: 2 },
+            { id: 'wpn_02', nome: "Taco de Beisebol (Alumínio)", tipo: "Arma Branca", raridade: "Raro", slots: 2 },
+            { id: 'wpn_03', nome: "Pé de Cabra", tipo: "Ferramenta", raridade: "Incomum", slots: 2 },
+            { id: 'wpn_04', nome: "Faca de Caça", tipo: "Arma Branca", raridade: "Raro", slots: 1 },
+            { id: 'wpn_05', nome: "Canivete Suíço", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
+            { id: 'wpn_06', nome: "Martelo de Obra", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
+            { id: 'wpn_07', nome: "Chave Inglesa Pesada", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
+            { id: 'wpn_08', nome: "Soco Inglês", tipo: "Arma Branca", raridade: "Incomum", slots: 1 },
+            { id: 'wpn_09', nome: "Cassetete Retrátil", tipo: "Arma Branca", raridade: "Raro", slots: 1 },
+            { id: 'wpn_10', nome: "Corrente de Aço", tipo: "Arma Branca", raridade: "Comum", slots: 1 },
+            { id: 'wpn_11', nome: "Katana Tradicional", tipo: "Arma Branca", raridade: "Épico", slots: 3 },
+            { id: 'wpn_12', nome: "Machado de Bombeiro", tipo: "Arma Branca", raridade: "Raro", slots: 3 },
+            { id: 'wpn_13', nome: "Facão (Machete)", tipo: "Arma Branca", raridade: "Incomum", slots: 2 },
+
+            // ARMAS DE FOGO & ARCOS (Slots maiores)
+            { id: 'gun_01', nome: "Pistola Glock 17", tipo: "Arma de Fogo", raridade: "Épico", slots: 2 },
+            { id: 'gun_02', nome: "Revólver .38", tipo: "Arma de Fogo", raridade: "Raro", slots: 2 },
+            { id: 'gun_03', nome: "Escopeta Serrada", tipo: "Arma de Fogo", raridade: "Lendário", slots: 2 },
+            { id: 'gun_04', nome: "Rifle de Caça", tipo: "Arma de Fogo", raridade: "Lendário", slots: 3 },
+            { id: 'gun_05', nome: "Arco Composto", tipo: "Arma Distância", raridade: "Épico", slots: 3 },
+            { id: 'gun_06', nome: "Besta de Mão", tipo: "Arma Distância", raridade: "Raro", slots: 2 },
+            { id: 'gun_07', nome: "Taser Policial", tipo: "Especial", raridade: "Raro", slots: 1 },
+            { id: 'gun_08', nome: "Spray de Pimenta", tipo: "Defesa", raridade: "Incomum", slots: 1 },
+
+            // MUNIÇÃO (Sempre 1 Slot)
+            { id: 'ammo_01', nome: "Munição 9mm (x3)", tipo: "Munição", raridade: "Incomum", slots: 1 },
+            { id: 'ammo_02', nome: "Munição 9mm (Box)", tipo: "Munição", raridade: "Raro", slots: 1 },
+            { id: 'ammo_03', nome: "Munição .38 (x6)", tipo: "Munição", raridade: "Incomum", slots: 1 },
+            { id: 'ammo_04', nome: "Cartucho Cal.12 (x2)", tipo: "Munição", raridade: "Raro", slots: 1 },
+            { id: 'ammo_05', nome: "Flechas (x3)", tipo: "Munição", raridade: "Raro", slots: 1 },
+            { id: 'ammo_06', nome: "Virotes (x3)", tipo: "Munição", raridade: "Raro", slots: 1 },
+
+            // SUPRIMENTOS MÉDICOS (1 Slot)
+            { id: 'med_01', nome: "Kit Primeiros Socorros", tipo: "Medicina", raridade: "Raro", slots: 1 },
+            { id: 'med_02', nome: "Bandagens", tipo: "Medicina", raridade: "Comum", slots: 1 },
+            { id: 'med_03', nome: "Álcool 70%", tipo: "Medicina", raridade: "Comum", slots: 1 },
+            { id: 'med_04', nome: "Analgésicos", tipo: "Medicina", raridade: "Incomum", slots: 1 },
+            { id: 'med_05', nome: "Adrenalina", tipo: "Medicina", raridade: "Épico", slots: 1 },
+            { id: 'med_06', nome: "Antibióticos", tipo: "Medicina", raridade: "Raro", slots: 1 },
+
+            // UTILITÁRIOS & SOBREVIVÊNCIA
+            { id: 'util_01', nome: "Lanterna Tática", tipo: "Utilitário", raridade: "Incomum", slots: 1 },
+            { id: 'util_02', nome: "Pilhas AA (x4)", tipo: "Recurso", raridade: "Comum", slots: 1 },
+            { id: 'util_03', nome: "Isqueiro Zippo", tipo: "Ferramenta", raridade: "Incomum", slots: 1 },
+            { id: 'util_04', nome: "Corda (10m)", tipo: "Ferramenta", raridade: "Incomum", slots: 1 },
+            { id: 'util_05', nome: "Silver Tape", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
+            { id: 'util_06', nome: "Binóculos", tipo: "Ferramenta", raridade: "Raro", slots: 1 },
+            { id: 'util_07', nome: "Powerbank", tipo: "Eletrônico", raridade: "Incomum", slots: 1 },
+            { id: 'util_08', nome: "Walkie-Talkie", tipo: "Eletrônico", raridade: "Incomum", slots: 1 },
+            { id: 'util_09', nome: "Máscara de Gás", tipo: "Proteção", raridade: "Raro", slots: 1 },
+            { id: 'util_10', nome: "Mochila Militar Peq.", tipo: "Utilitário", raridade: "Raro", slots: 1 }, // (Conceitual, poderia aumentar slots se programado)
+            { id: 'util_11', nome: "Sinalizador (Flare)", tipo: "Consumível", raridade: "Incomum", slots: 1 },
+            { id: 'util_12', nome: "Colete à Prova de Balas", tipo: "Proteção", raridade: "Épico", slots: 2 },
+            { id: 'util_13', nome: "Cola Super Forte", tipo: "Crafting", raridade: "Comum", slots: 1 },
+            { id: 'util_14', nome: "Óleo Lubrificante", tipo: "Manutenção", raridade: "Comum", slots: 1 },
+
+            // COMIDA & DIVERSOS
+            { id: 'food_01', nome: "Garrafa Água 1.5L", tipo: "Consumível", raridade: "Comum", slots: 1 },
+            { id: 'food_02', nome: "Ração Militar MRE", tipo: "Consumível", raridade: "Incomum", slots: 1 },
+            { id: 'food_03', nome: "Barra de Proteína", tipo: "Consumível", raridade: "Comum", slots: 1 },
+            { id: 'food_04', nome: "Lata de Atum", tipo: "Consumível", raridade: "Comum", slots: 1 },
+            { id: 'misc_01', nome: "Maço de Cigarros", tipo: "Troca", raridade: "Comum", slots: 1 },
+            { id: 'misc_02', nome: "Relógio Digital", tipo: "Utilitário", raridade: "Comum", slots: 1 },
+            { id: 'misc_03', nome: "Vodka Barata", tipo: "Consumível", raridade: "Incomum", slots: 1 },
+            { id: 'misc_04', nome: "Baralho", tipo: "Lazer", raridade: "Comum", slots: 1 }
+        ];
+
+        // --- SISTEMA DE RECEITAS ---
+        const RECIPES = [
+            // Processamento de Materiais
+            { result: 'int_01', q: 1, req: [{id: 'mat_01', q: 3}, {id: 'mat_09', q: 2}], desc: "Fundir sucata em chapa" },
+            { result: 'int_02', q: 1, req: [{id: 'mat_07', q: 2}, {id: 'mat_08', q: 3}], desc: "Montar circuito simples" },
+            { result: 'int_03', q: 1, req: [{id: 'mat_03', q: 5}, {id: 'mat_04', q: 2}], desc: "Trançar fibras sintéticas" },
+            
+            // Armas Brancas
+            { result: 'wpn_01', q: 1, req: [{id: 'mat_06', q: 3}, {id: 'util_05', q: 1}], desc: "Reforçar madeira" },
+            { result: 'wpn_03', q: 1, req: [{id: 'mat_01', q: 2}, {id: 'mat_09', q: 2}], desc: "Forjar pé de cabra" },
+            { result: 'wpn_10', q: 1, req: [{id: 'mat_01', q: 2}, {id: 'mat_08', q: 2}], desc: "Entrelaçar elos de metal" },
+            { result: 'wpn_04', q: 1, req: [{id: 'int_01', q: 1}, {id: 'mat_03', q: 1}, {id: 'util_13', q: 1}], desc: "Afiar chapa de aço" },
+
+            // Armas de Fogo & Especial
+            { result: 'gun_02', q: 1, req: [{id: 'int_01', q: 3}, {id: 'mat_06', q: 1}, {id: 'util_14', q: 1}], desc: "Montar revólver artesanal" },
+            { result: 'gun_06', q: 1, req: [{id: 'mat_06', q: 2}, {id: 'util_04', q: 1}, {id: 'mat_01', q: 1}], desc: "Montar pequena besta" },
+            { result: 'gun_08', q: 1, req: [{id: 'mat_04', q: 1}, {id: 'med_03', q: 1}, {id: 'mat_02', q: 1}], desc: "Mistura química irritante" },
+
+            // Munição
+            { result: 'mat_02', q: 2, req: [{id: 'misc_01', q: 2}, {id: 'med_03', q: 1}], desc: "Extrair nitrato" },
+            { result: 'ammo_06', q: 3, req: [{id: 'mat_06', q: 1}, {id: 'mat_01', q: 1}], desc: "Talhar virotes" },
+
+            // Utilitários
+            { result: 'med_02', q: 2, req: [{id: 'mat_03', q: 2}, {id: 'med_03', q: 1}], desc: "Esterilizar tecido" },
+            { result: 'util_12', q: 1, req: [{id: 'int_03', q: 3}, {id: 'int_01', q: 1}, {id: 'util_05', q: 1}], desc: "Costurar colete reforçado" },
+            { result: 'util_03', q: 1, req: [{id: 'mat_01', q: 1}, {id: 'med_03', q: 1}, {id: 'mat_03', q: 1}], desc: "Isqueiro improvisado" }
+        ];
+
+        // --- ESTADO GLOBAL ---
+        let inventory = JSON.parse(localStorage.getItem('border_inv_v4')) || [];
+
+        // --- CORE FUNCTIONS ---
+
+        function getSlotUsage() {
+            return inventory.reduce((acc, item) => acc + item.slots, 0);
+        }
+
+        function notificar(msg, type='info') {
+            const area = document.getElementById('notification-area');
+            const div = document.createElement('div');
+            const color = type === 'error' ? 'text-red-500 border-red-900' : 'text-[#ff003c] border-[#ff003c]';
+            div.className = `bg-black border p-2 text-xs font-bold uppercase tracking-widest shadow-lg ${color} animate-bounce`;
+            div.innerText = msg;
+            area.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+            
+            // Adicionar ao log
+            const log = document.getElementById('activity-log');
+            const entry = document.createElement('li');
+            entry.innerText = `> ${msg}`;
+            log.prepend(entry);
+        }
+
+        function adicionarItem(id) {
+            const item = ITEMS.find(i => i.id === id);
+            if (!item) return;
+
+            if (getSlotUsage() + item.slots > 9) {
+                notificar("MOCHILA CHEIA! LIBERE ESPAÇO.", "error");
+                return;
+            }
+
+            const instance = { ...item, uid: Date.now() + Math.random() };
+            inventory.push(instance);
+            notificar(`+ ${item.nome}`);
+            renderAll();
+        }
+
+        function removerItem(uid) {
+            inventory = inventory.filter(i => i.uid !== uid);
+            renderAll();
+        }
+
+        function craftItem(index) {
+            const recipe = RECIPES[index];
+            
+            // Verificar
+            const missing = [];
+            recipe.req.forEach(req => {
+                const count = inventory.filter(i => i.id === req.id).length;
+                if (count < req.q) missing.push(`${req.q - count}x ${ITEMS.find(x => x.id === req.id).nome}`);
+            });
+
+            if (missing.length > 0) {
+                notificar(`Falta: ${missing.join(', ')}`, "error");
+                return;
+            }
+
+            // Consumir
+            recipe.req.forEach(req => {
+                for(let i=0; i<req.q; i++) {
+                    const idx = inventory.findIndex(x => x.id === req.id);
+                    if(idx > -1) inventory.splice(idx, 1);
+                }
+            });
+
+            // Adicionar resultado
+            adicionarItem(recipe.result);
+            // Se o item resultante tiver quantidade > 1 (ex: munição), adicionar o resto
+            // A função adicionarItem já trata um item, se a receita diz q:3, precisamos adicionar mais 2 loops
+            // Mas minha função adicionarItem chama renderAll. Para evitar spam, vamos fazer um loop silencioso ou apenas chamar add
+            for(let i=1; i<recipe.q; i++) {
+                // Adiciona sem notificação visual excessiva para os extras, ou apenas chama a função
+                 const item = ITEMS.find(x => x.id === recipe.result);
+                 if (getSlotUsage() + item.slots <= 9) {
+                     inventory.push({ ...item, uid: Date.now() + Math.random() });
+                 }
+            }
+            notificar(`FABRICADO: ${ITEMS.find(i=>i.id === recipe.result).nome}`);
+            renderAll();
+        }
+
+        function limparTudo() {
+            if(confirm("Resetar todo o inventário?")) {
+                inventory = [];
+                renderAll();
+            }
+        }
+
+        // --- RENDERIZAÇÃO ---
+
+        function renderAll() {
+            localStorage.setItem('border_inv_v4', JSON.stringify(inventory));
+            renderMochila();
+            renderDatabase(); // Para atualizar status de receitas se estiver na aba, mas opcional
+            renderCrafting();
+            lucide.createIcons();
+        }
+
+        function renderMochila() {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = '';
+            
+            // Render Slots
+            inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `mc-slot occupied item-size-${item.slots} group cursor-pointer`;
+                div.onclick = () => removerItem(item.uid);
+                
+                // Icon Logic (Simple Text fallback or Lucide)
+                let iconName = 'package';
+                if(item.tipo.includes('Arma')) iconName = 'sword';
+                if(item.tipo.includes('Fogo')) iconName = 'crosshair';
+                if(item.tipo.includes('Medicina')) iconName = 'heart-pulse';
+                if(item.tipo.includes('Material')) iconName = 'box';
+
+                div.innerHTML = `
+                    <i data-lucide="${iconName}" class="mb-1 text-white/50 group-hover:text-[#ff003c] transition-colors" size="16"></i>
+                    <span class="text-[9px] font-bold text-center leading-tight uppercase px-1 ${getRarityColor(item.raridade)}">${item.nome}</span>
+                    <div class="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 bg-black/80 text-[8px] text-red-500 font-bold">X</div>
+                `;
+                grid.appendChild(div);
+            });
+
+            // Empty Slots Fill
+            const used = getSlotUsage();
+            const total = 9;
+            document.getElementById('slot-counter').innerText = `${used} / ${total}`;
+            document.getElementById('bar-carga').style.width = `${(used/total)*100}%`;
+
+            // Preenche visualmente apenas se não for sistema fluido. Como é grid Minecraft (3x3 fixo),
+            // a lógica de "fill" é complexa com itens de tamanhos variados. 
+            // Abordagem simples: Grid CSS lida com posicionamento. Se sobrar espaço visual no DOM, 
+            // preenchemos com div vazias apenas para manter a grade se não houver itens suficientes.
+            // Mas com itens de tamanhos variados, preencher "buracos" exatos é difícil via JS simples.
+            // Vamos deixar o Grid CSS organizar os itens e preencher o resto com slots vazios 1x1 até 9 elementos DOM totais?
+            // Não, melhor deixar apenas os itens e o fundo do container fazer o resto. 
+            // Para visual de grid vazio:
+            if (inventory.length === 0) {
+                 for(let i=0; i<9; i++) {
+                     grid.innerHTML += `<div class="bg-[#111] border border-[#222] rounded-sm opacity-20"></div>`;
+                 }
+            }
+        }
+
+        function renderDatabase() {
+            const list = document.getElementById('database-list');
+            const search = document.getElementById('search-loot').value.toLowerCase();
+            const filter = document.getElementById('filter-loot').value;
+
+            list.innerHTML = '';
+
+            ITEMS.filter(item => {
+                const matchText = item.nome.toLowerCase().includes(search) || item.tipo.toLowerCase().includes(search);
+                const matchFilter = filter === 'all' || item.raridade === filter;
+                return matchText && matchFilter;
+            }).forEach(item => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-zinc-900/40 p-2 border border-zinc-800 hover:border-zinc-600 transition-all group";
+                div.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold uppercase ${getRarityColor(item.raridade)}">${item.nome}</span>
+                        <span class="text-[8px] text-zinc-600 uppercase">${item.tipo} • ${item.slots} SLOT(S)</span>
+                    </div>
+                    <button onclick="adicionarItem('${item.id}')" class="text-zinc-500 hover:text-[#ff003c] transition-colors">
+                        <i data-lucide="plus-square" size="18"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function renderCrafting() {
+            const list = document.getElementById('recipes-list');
+            list.innerHTML = '';
+
+            RECIPES.forEach((rec, idx) => {
+                const resultItem = ITEMS.find(i => i.id === rec.result);
+                
+                // Check if craftable
+                let craftable = true;
+                const ingredientsHTML = rec.req.map(r => {
+                    const have = inventory.filter(x => x.id === r.id).length;
+                    const name = ITEMS.find(x => x.id === r.id).nome;
+                    if(have < r.q) craftable = false;
+                    const color = have >= r.q ? 'text-green-500' : 'text-red-500';
+                    return `<span class="${color} text-[9px] block">• ${have}/${r.q} ${name}</span>`;
+                }).join('');
+
+                const div = document.createElement('div');
+                div.className = `p-3 border ${craftable ? 'border-zinc-600 bg-zinc-900/50 hover:border-green-500 cursor-pointer' : 'border-zinc-900 bg-black opacity-60 cursor-not-allowed'} transition-all`;
+                if(craftable) div.onclick = () => { craftItem(idx); mostrarPreview(idx); };
+                div.onclick = () => mostrarPreview(idx); // Mostra mesmo se não der pra craftar
+
+                div.innerHTML = `
+                    <div class="flex justify-between mb-1">
+                        <span class="text-xs font-bold uppercase ${getRarityColor(resultItem.raridade)}">${resultItem.nome}</span>
+                        ${craftable ? '<i data-lucide="hammer" size="12" class="text-green-500"></i>' : '<i data-lucide="lock" size="12" class="text-zinc-700"></i>'}
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function mostrarPreview(idx) {
+            const rec = RECIPES[idx];
+            const item = ITEMS.find(i => i.id === rec.result);
+            const container = document.getElementById('craft-preview');
+            
+            // Check ingredients again for preview
+            let btnClass = "bg-zinc-800 text-zinc-500 cursor-not-allowed";
+            let btnText = "MATERIAIS INSUFICIENTES";
+            let canCraft = true;
+            
+            const ingList = rec.req.map(r => {
+                const have = inventory.filter(x => x.id === r.id).length;
+                const iData = ITEMS.find(x => x.id === r.id);
+                if(have < r.q) canCraft = false;
+                return `
+                    <div class="flex justify-between text-[10px] w-full border-b border-zinc-800 py-1">
+                        <span class="text-zinc-400">${iData.nome}</span>
+                        <span class="${have >= r.q ? 'text-green-500' : 'text-red-500'} font-mono">${have}/${r.q}</span>
+                    </div>
+                `;
+            }).join('');
+
+            if(canCraft) {
+                btnClass = "bg-[#ff003c] text-black hover:bg-white hover:shadow-[0_0_15px_#ff003c] cursor-pointer";
+                btnText = "FABRICAR ITEM";
+            }
+
+            container.classList.remove('opacity-50');
+            container.innerHTML = `
+                <div class="text-4xl mb-2 text-zinc-700 p-4 border border-zinc-800 bg-black">
+                    <i data-lucide="package" size="48"></i>
+                </div>
+                <h2 class="text-lg font-bold uppercase ${getRarityColor(item.raridade)} mb-1">${item.nome}</h2>
+                <p class="text-[10px] text-zinc-500 mb-6 uppercase tracking-widest">${rec.desc}</p>
+                
+                <div class="w-full max-w-xs bg-black p-4 border border-zinc-800 mb-6">
+                    <h4 class="text-[9px] text-zinc-500 uppercase mb-2 text-left">Componentes Necessários:</h4>
+                    ${ingList}
+                </div>
+
+                <button onclick="${canCraft ? `craftItem(${idx})` : ''}" class="w-full max-w-xs py-3 font-bold uppercase tracking-widest transition-all ${btnClass}">
+                    ${btnText}
+                </button>
+            `;
+            lucide.createIcons();
+        }
+
+        // --- UTILS ---
+
+        function getRarityColor(raridade) {
+            const map = {
+                'Comum': 'text-zinc-400',
+                'Incomum': 'text-green-400',
+                'Raro': 'text-blue-400',
+                'Épico': 'text-purple-400',
+                'Lendário': 'text-amber-400'
+            };
+            return map[raridade] || 'text-white';
+        }
+
+        function mudarAba(aba) {
+            // UI Update
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-btn-${aba}`).classList.add('active');
+            
+            // Content Update
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${aba}`).classList.add('active');
+            
+            if(aba === 'craft') renderCrafting();
+            if(aba === 'loot') renderDatabase();
+        }
+
+        window.exportarImagem = () => {
+            html2canvas(document.body).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'borderland-inv-full.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        };
+
+        // Init
+        renderAll();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
