@@ -1,666 +1,969 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borderland OS v4.0 - Full System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Libertiné - Salão de Jogos</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --neon-red: #ff003c;
-            --neon-dim: #5a0015;
-            --bg-color: #050505;
-            --slot-bg: #0f0f0f;
-            --grid-line: #1a1a1a;
+            --gold-light: #FBEAAB;
+            --gold-main: #D4AF37;
+            --gold-dark: #A68A27;
+            --bg-light: #FDFDFD;
+            --bg-card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --border-soft: #EFEFEF;
         }
 
         body {
-            font-family: 'Share Tech Mono', monospace;
-            background-color: var(--bg-color);
-            color: #e0e0e0;
-            background-image: 
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+            overscroll-behavior-y: none;
+            background-image: radial-gradient(circle at 50% 0%, #FFFFFF 0%, rgba(212, 175, 55, 0.03) 100%);
         }
 
-        /* Scanline Overlay */
-        .crt::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 100;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+        h1, h2, h3, h4, .font-cinzel {
+            font-family: 'Cinzel', serif;
         }
 
-        /* Grid System */
-        .mc-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 6px;
+        .text-gold {
+            background: linear-gradient(135deg, #C59B27 0%, var(--gold-main) 50%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Botões */
+        .btn-gold {
+            background: transparent;
+            border: 1px solid var(--gold-main);
+            color: var(--gold-dark);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-gold:active {
+            background: rgba(212, 175, 55, 0.1);
+            transform: scale(0.98);
+        }
+
+        .btn-solid-gold {
+            background: var(--gold-main);
+            color: #fff;
+            border: 1px solid var(--gold-main);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+            cursor: pointer;
+        }
+        .btn-solid-gold:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-solid-gold:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid #CCC;
+            color: #666;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-ghost:active {
+            background: #F0F0F0;
+            transform: scale(0.98);
+        }
+
+        .input-elegant {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #DDD;
+            color: var(--text-main);
+            padding: 12px 0;
             width: 100%;
-            max-width: 340px;
-            aspect-ratio: 1/1;
-            background: #111;
-            padding: 8px;
-            border: 1px solid #333;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .input-elegant:focus {
+            outline: none;
+            border-bottom: 1px solid var(--gold-main);
         }
 
-        .mc-slot {
-            background: var(--slot-bg);
-            border: 1px solid #333;
+        /* Cards do Menu */
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-card:active {
+            transform: scale(0.96);
+            border-color: var(--gold-main);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Ecrãs */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Área de Cartas dos Jogos */
+        .play-card {
+            background: #fff;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+            min-height: 280px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 2.5rem;
+            text-align: center;
             position: relative;
-            transition: all 0.2s;
-            overflow: hidden;
+        }
+        .play-card::before {
+            content: '';
+            position: absolute;
+            top: 5px; right: 5px; bottom: 5px; left: 5px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            pointer-events: none;
         }
 
-        .mc-slot:hover { border-color: #555; }
-        
-        .mc-slot.occupied {
-            background: linear-gradient(135deg, #1a0505 0%, #000 100%);
-            border: 1px solid var(--neon-red);
-            box-shadow: inset 0 0 10px rgba(255,0,60,0.1);
+        /* Modais */
+        .modal-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
         }
 
-        .item-size-1 { grid-column: span 1; grid-row: span 1; }
-        .item-size-2 { grid-column: span 2; grid-row: span 1; }
-        .item-size-3 { grid-column: span 3; grid-row: span 1; }
-
-        /* Navigation Tabs */
-        .nav-btn {
-            background: transparent;
-            border: 1px solid #333;
-            color: #666;
+        .shot-badge {
+            background: #1A1A1A;
+            color: #D4AF37;
+            padding: 4px 12px;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            letter-spacing: 0.1em;
+            position: absolute;
+            top: -10px;
+            border: 1px solid #D4AF37;
         }
-        
-        .nav-btn.active {
-            background: var(--neon-red);
-            color: black;
-            border-color: var(--neon-red);
-            box-shadow: 0 0 15px var(--neon-red);
-            font-weight: bold;
-        }
-
-        .nav-btn:hover:not(.active) {
-            border-color: #666;
-            color: #fff;
-        }
-
-        /* Rarities */
-        .rarity-comum { color: #a1a1aa; border-color: #52525b; }
-        .rarity-incomum { color: #4ade80; border-color: #059669; }
-        .rarity-raro { color: #3b82f6; border-color: #1d4ed8; }
-        .rarity-épico { color: #d946ef; border-color: #a21caf; }
-        .rarity-lendário { color: #fbbf24; border-color: #b45309; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon-red); }
-
-        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-content.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="crt min-h-screen flex flex-col items-center p-4">
+<body class="min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="w-full max-w-4xl flex justify-between items-end mb-6 border-b border-[#33000d] pb-4 px-2">
-        <div>
-            <h1 class="text-3xl md:text-4xl font-bold text-[#ff003c] tracking-tighter" style="text-shadow: 0 0 10px rgba(255,0,60,0.5);">
-                BORDERLAND OS <span class="text-white text-sm align-top opacity-50">v4.0</span>
-            </h1>
-            <p class="text-[10px] tracking-[0.4em] text-zinc-500 uppercase mt-1">SISTEMA DE SOBREVIVÊNCIA INTEGRADO</p>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="exportarImagem()" class="border border-[#ff003c] text-[#ff003c] px-3 py-1 text-[10px] uppercase hover:bg-[#ff003c] hover:text-black transition-colors">
-                Salvar Imagem
-            </button>
-            <button onclick="limparTudo()" class="border border-zinc-700 text-zinc-500 px-3 py-1 text-[10px] uppercase hover:text-white hover:border-white transition-colors">
-                Reset
-            </button>
-        </div>
+    <header id="main-header" class="w-full bg-white border-b border-gray-100 py-4 px-6 flex items-center justify-between sticky top-0 z-50 shadow-sm hidden">
+        <button id="btnBack" onclick="goHome()" class="text-gray-400 font-cinzel text-[0.65rem] uppercase tracking-widest hidden hover:text-[#D4AF37]">
+            ← Menu
+        </button>
+        <h1 class="font-cinzel text-xl text-gold tracking-widest absolute left-1/2 transform -translate-x-1/2">LIBERTINÉ</h1>
+        <button onclick="openSetup(true)" class="text-[#D4AF37] font-cinzel text-[0.65rem] uppercase tracking-widest flex items-center gap-1">
+            <span>🎭</span> Elenco
+        </button>
     </header>
 
-    <!-- Navigation -->
-    <div class="w-full max-w-4xl mb-6 grid grid-cols-3 gap-2">
-        <button onclick="mudarAba('mochila')" id="tab-btn-mochila" class="nav-btn active py-3 text-xs md:text-sm">
-            MOCHILA
-        </button>
-        <button onclick="mudarAba('loot')" id="tab-btn-loot" class="nav-btn py-3 text-xs md:text-sm">
-            BANCO DE DADOS
-        </button>
-        <button onclick="mudarAba('craft')" id="tab-btn-craft" class="nav-btn py-3 text-xs md:text-sm">
-            FABRICAÇÃO
-        </button>
-    </div>
+    <main class="flex-grow flex flex-col relative w-full max-w-2xl mx-auto p-4 md:p-8">
 
-    <!-- MAIN CONTAINER -->
-    <main class="w-full max-w-4xl bg-black/60 border border-zinc-900 p-1 md:p-6 min-h-[500px] relative backdrop-blur-sm shadow-2xl">
-        
-        <!-- ABA 1: MOCHILA (GRID) -->
-        <div id="tab-mochila" class="tab-content active h-full">
-            <div class="flex flex-col md:flex-row gap-8 items-start justify-center h-full">
+        <!-- ================= ECRÃ 1: SETUP (OBRIGATÓRIO INICIAL) ================= -->
+        <section id="screen-setup" class="screen active flex-col w-full h-full items-center pt-8">
+            <h1 class="font-cinzel text-4xl text-gold mb-2 tracking-widest text-center">LIBERTINÉ</h1>
+            <h2 class="font-cinzel text-xl text-gray-800 mb-2 uppercase tracking-widest text-center mt-6">O Elenco</h2>
+            <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest text-center mb-8">Adicione os nomes de quem está na festa.<br>Mínimo de 3 jogadores para abrir o Salão.</p>
+
+            <div class="flex gap-2 w-full max-w-sm mx-auto mb-6">
+                <!-- onkeydown captura o Enter (Código seguro) -->
+                <input type="text" id="setup-input" placeholder="Ex: Maria" class="input-elegant flex-grow" onkeydown="if(event.key === 'Enter') addPlayer()">
+                <button onclick="addPlayer()" class="btn-solid-gold px-6 uppercase text-xs tracking-widest font-bold">Adicionar</button>
+            </div>
+
+            <p class="text-[0.65rem] text-gray-400 uppercase tracking-widest mb-2">Participantes: <span id="player-count" class="text-[#D4AF37] font-bold">0</span></p>
+            
+            <div id="setup-list" class="flex flex-wrap gap-2 justify-center w-full max-w-sm mx-auto mb-8 min-h-[120px] content-start">
+                <!-- Players will appear here -->
+            </div>
+
+            <button id="btn-enter-salon" onclick="enterSalon()" disabled class="btn-solid-gold w-full max-w-sm mx-auto py-4 uppercase tracking-widest text-sm font-bold transition-all">
+                Abrir Salão de Jogos
+            </button>
+            
+            <button id="btn-return-menu" onclick="goHome()" class="btn-ghost w-full max-w-sm mx-auto py-3 uppercase tracking-widest text-xs mt-3 hidden">
+                Voltar ao Menu Principal
+            </button>
+        </section>
+
+        <!-- ================= ECRÃ 2: MENU PRINCIPAL ================= -->
+        <section id="screen-menu" class="screen flex-col w-full h-full pb-8">
+            <div class="text-center mb-8 mt-2">
+                <h2 class="font-cinzel text-2xl text-gray-800 mb-2">Salão de Jogos</h2>
+                <p class="text-[0.65rem] text-gray-500 uppercase tracking-[0.2em]">Exponha, beba e confesse</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div onclick="openGame('eu-nunca')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">🍷</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Eu Nunca</h3>
+                    <p class="text-[0.6rem] text-gray-500">Cometeu o pecado? Beba.</p>
+                </div>
+
+                <div onclick="openGame('verdade-desafio')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">🎭</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Verdade ou Desafio</h3>
+                    <p class="text-[0.6rem] text-gray-500">Exponha-se ou sofra.</p>
+                </div>
+
+                <div onclick="openGame('calice')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
+                    <span class="text-3xl mb-2">👑</span>
+                    <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Cálice da Verdade</h3>
+                    <p class="text-[0.6rem] text-gray-600">A roda escolhe. Fofoca dura ou shots.</p>
+                </div>
+
+                <div onclick="openGame('pandora')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
+                    <span class="text-3xl mb-2">📦</span>
+                    <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Caixa de Pandora</h3>
+                    <p class="text-[0.6rem] text-gray-600">Fofocas anónimas. Quem escreveu?</p>
+                </div>
+
+                <div onclick="openGame('tribunal')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">⚖️</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Tribunal</h3>
+                    <p class="text-[0.6rem] text-gray-500">Apontem ao culpado. O eleito bebe.</p>
+                </div>
+
+                <div onclick="openGame('roleta')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">🎯</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Roleta</h3>
+                    <p class="text-[0.6rem] text-gray-500">Destinos cruzados aleatoriamente.</p>
+                </div>
+
+                <div onclick="openGame('mimica')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">🤫</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Mímica Adulta</h3>
+                    <p class="text-[0.6rem] text-gray-500">Sem palavras. Apenas gestos.</p>
+                </div>
+
+                <div onclick="openGame('espiao')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
+                    <span class="text-3xl mb-2">🕵️</span>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">O Espião</h3>
+                    <p class="text-[0.6rem] text-gray-500">Encontrem o infiltrado na festa.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: EU NUNCA ================= -->
+        <section id="screen-eu-nunca" class="screen flex-col w-full h-full items-center justify-center pt-4">
+            <h2 class="font-cinzel text-2xl text-gold mb-2 uppercase tracking-widest">Eu Nunca</h2>
+            <p class="text-[0.6rem] text-gray-500 uppercase tracking-widest mb-8">Quem já fez, bebe 1 shot.</p>
+            
+            <div class="play-card w-full max-w-sm mb-6">
+                <p id="en-text" class="font-cinzel text-[1.3rem] text-gray-800 leading-relaxed px-2">Clique para revelar o primeiro pecado.</p>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full max-w-sm">
+                <button onclick="nextCard('en', dataEuNunca)" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Pecado</button>
+                <button onclick="openCustomModal('en')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Criar Pergunta Customizada</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: VERDADE OU DESAFIO ================= -->
+        <section id="screen-verdade-desafio" class="screen flex-col w-full h-full items-center justify-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-8 uppercase tracking-widest text-center">Verdade ou<br>Desafio</h2>
+            
+            <div class="play-card w-full max-w-sm mb-6">
+                <p id="vd-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Façam a vossa escolha.</p>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full max-w-sm">
+                <div class="flex gap-3">
+                    <button onclick="nextCardVD('verdade')" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Verdade</button>
+                    <button onclick="nextCardVD('desafio')" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Desafio</button>
+                </div>
+                <button onclick="openCustomModal('vd')" class="btn-ghost w-full py-3 uppercase tracking-widest text-xs">Criar Desafio Personalizado</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: TRIBUNAL DA FOFOCA ================= -->
+        <section id="screen-tribunal" class="screen flex-col w-full h-full items-center justify-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">Tribunal da Fofoca</h2>
+            <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center px-4">Ao contar até 3, apontem para o culpado. O mais votado bebe 1 shot.</p>
+
+            <div class="play-card w-full max-w-sm mb-6">
+                <p id="tr-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Quem é mais provável de...?</p>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full max-w-sm">
+                <button onclick="nextCard('tr', dataTribunal)" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Réu</button>
+                <button onclick="openCustomModal('tr')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Fazer Acusação Própria</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: CÁLICE DA VERDADE (AUTO ELENCO) ================= -->
+        <section id="screen-calice" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">O Cálice da Verdade</h2>
+            <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center px-4">Responda a verdade ou sofra a punição em shots.</p>
+
+            <div class="play-card w-full max-w-sm mb-6 bg-[rgba(212,175,55,0.03)] border-[#D4AF37]">
+                <div id="calice-shot-badge" class="shot-badge hidden">2 Shots</div>
+                <p id="calice-player" class="text-xs uppercase tracking-widest text-gray-400 mb-4 hidden">Sua vez:</p>
+                <p id="calice-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">A roda vai escolher a próxima vítima.</p>
+            </div>
+
+            <button id="btn-calice-spin" onclick="spinCalice()" class="btn-solid-gold w-full max-w-sm py-4 uppercase tracking-widest text-sm font-bold">
+                Sortear Vítima
+            </button>
+            <div id="calice-actions" class="flex w-full max-w-sm gap-3 hidden mt-3">
+                <button onclick="document.getElementById('btn-calice-spin').click()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs">Já Bebi</button>
+                <button onclick="document.getElementById('btn-calice-spin').click()" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Respondi</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: CAIXA DE PANDORA (ANÓNIMO) ================= -->
+        <section id="screen-pandora" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">Caixa de Pandora</h2>
+            
+            <div id="pandora-input-phase" class="w-full max-w-sm flex flex-col items-center w-full">
+                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Passe o telemóvel. Cada um escreve uma fofoca, segredo ou pergunta sobre alguém da roda, anonimamente.</p>
                 
-                <!-- O Grid -->
-                <div class="flex flex-col items-center w-full md:w-auto">
-                    <div class="flex justify-between w-full max-w-[340px] mb-2 text-[10px] text-zinc-500 uppercase tracking-widest">
-                        <span>Grid de Inventário</span>
-                        <span id="slot-counter" class="text-[#ff003c]">0 / 9</span>
-                    </div>
-                    
-                    <div id="inventory-capture" class="bg-black p-2 border border-zinc-800">
-                        <div id="main-grid" class="mc-grid">
-                            <!-- Slots JS -->
-                        </div>
-                    </div>
+                <p class="font-cinzel text-gold text-lg mb-2">Segredos Guardados: <span id="pandora-count">0</span></p>
+                
+                <textarea id="pandora-input" rows="4" placeholder="Escreva algo comprometedor anonimamente..." class="w-full border border-gray-200 p-4 font-montserrat text-sm focus:outline-none focus:border-[#D4AF37] resize-none mb-4"></textarea>
+                
+                <button onclick="submitPandora()" class="btn-gold w-full py-3 mb-6 uppercase tracking-widest text-xs font-bold">Guardar na Caixa (Escondido)</button>
+                
+                <div class="w-full h-px bg-gray-200 my-4"></div>
 
-                    <div class="mt-4 text-center max-w-xs">
-                        <p class="text-[10px] text-zinc-600">
-                            Clique em um item para removê-lo ou ver detalhes.
-                            Itens maiores ocupam múltiplas células horizontais.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Status Lateral -->
-                <div class="flex-grow w-full md:w-64 space-y-4">
-                    <div class="border border-zinc-800 p-4 bg-zinc-900/30">
-                        <h3 class="text-xs text-[#ff003c] font-bold uppercase mb-2">Status da Carga</h3>
-                        <div class="w-full bg-black h-2 mb-1 border border-zinc-800">
-                            <div id="bar-carga" class="h-full bg-[#ff003c] w-0 transition-all duration-500"></div>
-                        </div>
-                        <p class="text-[9px] text-zinc-500 text-right">CAPACIDADE DO SISTEMA</p>
-                    </div>
-
-                    <div class="border border-zinc-800 p-4 bg-zinc-900/30 min-h-[200px]">
-                        <h3 class="text-xs text-zinc-400 font-bold uppercase mb-4">Registro de Atividades</h3>
-                        <ul id="activity-log" class="space-y-2 text-[10px] font-mono opacity-80 max-h-[200px] overflow-y-auto">
-                            <!-- Logs -->
-                        </ul>
-                    </div>
-                </div>
+                <button onclick="startPandoraRead()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">
+                    Abrir a Caixa e Ler
+                </button>
             </div>
-        </div>
 
-        <!-- ABA 2: LOOT / DATABASE -->
-        <div id="tab-loot" class="tab-content h-full">
-            <div class="flex flex-col h-full">
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="search-loot" oninput="renderDatabase()" placeholder="BUSCAR ITEM..." 
-                        class="flex-grow bg-black border border-zinc-700 p-3 text-xs text-white outline-none focus:border-[#ff003c]">
-                    <select id="filter-loot" onchange="renderDatabase()" class="bg-black border border-zinc-700 p-3 text-xs text-white outline-none">
-                        <option value="all">TODOS</option>
-                        <option value="Comum">COMUM</option>
-                        <option value="Incomum">INCOMUM</option>
-                        <option value="Raro">RARO</option>
-                        <option value="Épico">ÉPICO</option>
-                        <option value="Lendário">LENDÁRIO</option>
-                    </select>
+            <div id="pandora-read-phase" class="w-full max-w-sm flex flex-col items-center w-full hidden">
+                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Leiam em voz alta. Quem escreveu? Se o grupo não descobrir a autoria, todos bebem 1 shot.</p>
+
+                <div class="play-card w-full mb-6 border-[#333] bg-[#050505]">
+                    <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">Confissão Anónima:</p>
+                    <p id="pandora-text" class="font-cinzel text-xl text-white leading-relaxed px-2"></p>
                 </div>
 
-                <div id="database-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
-                    <!-- Itens JS -->
-                </div>
+                <button onclick="nextPandora()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">
+                    Próximo Segredo
+                </button>
             </div>
-        </div>
+        </section>
 
-        <!-- ABA 3: CRAFTING -->
-        <div id="tab-craft" class="tab-content h-full">
-            <div class="flex flex-col md:flex-row h-full gap-6">
-                <!-- Lista de Receitas -->
-                <div class="w-full md:w-1/2 flex flex-col">
-                    <h3 class="text-xs text-zinc-500 uppercase tracking-widest mb-3">Receitas Disponíveis</h3>
-                    <div id="recipes-list" class="space-y-2 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
-                        <!-- Receitas JS -->
+        <!-- ================= ECRÃ: ROLETA (AUTO ELENCO) ================= -->
+        <section id="screen-roleta" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-8 uppercase tracking-widest text-center">Roleta de Ações</h2>
+            
+            <div class="play-card w-full max-w-sm mb-6">
+                <p id="roleta-result" class="font-cinzel text-[1.2rem] text-gray-800 leading-relaxed">Gire a roda para cruzar os destinos do elenco.</p>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full max-w-sm">
+                <button onclick="spinRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Girar Roleta</button>
+                <button onclick="openCustomModal('rl')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Criar Punição Manual</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: MÍMICA ================= -->
+        <section id="screen-mimica" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-4 uppercase tracking-widest text-center">Mímica Adulta</h2>
+            
+            <div class="w-24 h-24 rounded-full border-2 border-[#D4AF37] flex items-center justify-center font-cinzel text-3xl text-gold mx-auto mb-6" id="mimica-timer">60</div>
+
+            <div class="play-card w-full max-w-sm mb-6 py-6 min-h-[150px]">
+                <p id="mimica-word" class="font-cinzel text-2xl font-bold text-gray-800 tracking-wider">Pronto?</p>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full max-w-sm">
+                <div class="flex gap-3">
+                    <button onclick="nextMimica()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs font-bold">Pular</button>
+                    <button id="btn-mimica-start" onclick="toggleMimicaTimer()" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Iniciar</button>
+                </div>
+                <button onclick="openCustomModal('mi')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Escrever Mímica</button>
+            </div>
+        </section>
+
+        <!-- ================= ECRÃ: ESPIÃO (AUTO ELENCO) ================= -->
+        <section id="screen-espiao" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">O Espião</h2>
+            <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Descubra quem não sabe onde estamos.</p>
+            
+            <div id="espiao-setup" class="w-full max-w-sm flex flex-col items-center mt-2">
+                <button onclick="startEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold mt-4">
+                    Distribuir Segredos pelo Elenco
+                </button>
+            </div>
+
+            <div id="espiao-play" class="w-full max-w-sm flex flex-col items-center hidden mt-2">
+                <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest mb-4 font-bold text-[#D4AF37] text-center">
+                    Passe o telemóvel para: <br><span id="espiao-current-player" class="text-2xl text-gray-800 mt-1 block">NOME</span>
+                </p>
+                
+                <div class="play-card w-full mb-6 cursor-pointer border-[#D4AF37]" onclick="toggleEspiaoReveal()">
+                    <div id="espiao-hidden" class="w-full h-full flex flex-col items-center justify-center">
+                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest border border-gray-300 px-6 py-3 rounded">Toque para revelar o segredo</p>
+                    </div>
+                    <div id="espiao-revealed" class="w-full h-full flex flex-col items-center justify-center hidden">
+                        <p class="text-[0.65rem] text-gray-500 uppercase mb-2 tracking-widest">A Localização é</p>
+                        <p id="espiao-word-display" class="font-cinzel text-3xl text-gold font-bold tracking-wider text-center leading-tight">PALAVRA</p>
+                        <p class="text-[0.6rem] text-red-400 font-bold uppercase mt-8 border-b border-red-400 pb-1">Toque novamente para esconder</p>
                     </div>
                 </div>
 
-                <!-- Detalhe da Receita -->
-                <div class="w-full md:w-1/2 border-l border-zinc-800 pl-0 md:pl-6 flex flex-col justify-center items-center text-center opacity-50" id="craft-preview">
-                    <i data-lucide="hammer" size="48" class="mb-4"></i>
-                    <p class="text-xs uppercase tracking-widest">Selecione uma receita</p>
-                </div>
+                <button id="btn-espiao-next" onclick="nextEspiaoPlayer()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold hidden">
+                    Escondi. Próximo Jogador.
+                </button>
             </div>
-        </div>
+        </section>
 
     </main>
 
-    <!-- Notification -->
-    <div id="notification-area" class="fixed bottom-4 right-4 z-50 pointer-events-none space-y-2"></div>
+    <!-- Modal de Criação Personalizada -->
+    <div id="customModal" class="fixed inset-0 modal-overlay z-50 flex justify-center items-center hidden opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-white border border-[#D4AF37] p-6 w-full max-w-sm shadow-2xl relative">
+            <h3 class="font-cinzel text-lg text-gold mb-4 text-center">Criar Carta</h3>
+            <textarea id="customInputText" rows="3" class="w-full border-b border-gray-300 p-2 font-montserrat text-sm focus:outline-none focus:border-[#D4AF37] resize-none mb-6" placeholder="Escreva aqui a sua pergunta ou punição..."></textarea>
+            
+            <div class="flex gap-3">
+                <button onclick="closeCustomModal()" class="btn-ghost flex-1 py-2 uppercase tracking-widest text-[0.65rem] font-bold">Cancelar</button>
+                <button onclick="playCustomCard()" class="btn-solid-gold flex-1 py-2 uppercase tracking-widest text-[0.65rem] font-bold">Jogar Agora</button>
+            </div>
+            <input type="hidden" id="customTargetGame" value="">
+        </div>
+    </div>
+
+    <!-- Modal de Aviso -->
+    <div id="alertModal" class="fixed inset-0 modal-overlay z-[60] flex justify-center items-center hidden opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-white border border-[#D4AF37] p-6 w-full max-w-xs shadow-2xl text-center">
+            <p id="alertText" class="font-montserrat text-sm text-gray-800 mb-6 uppercase tracking-wider font-bold"></p>
+            <button onclick="closeAlert()" class="btn-solid-gold w-full py-3 uppercase tracking-widest text-xs font-bold">Entendido</button>
+        </div>
+    </div>
 
     <script>
-        // --- BASE DE DADOS COMPLETA (75 Itens) ---
-        const ITEMS = [
-            // MATERIAIS BÁSICOS (9)
-            { id: 'mat_01', nome: "Sucata de Metal", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_02', nome: "Pólvora", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_03', nome: "Tecido", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_04', nome: "Plástico", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_05', nome: "Vidro Quebrado", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_06', nome: "Madeira", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_07', nome: "Componente Eletrônico", tipo: "Material", raridade: "Incomum", slots: 1 },
-            { id: 'mat_08', nome: "Fio de Cobre", tipo: "Material", raridade: "Comum", slots: 1 },
-            { id: 'mat_09', nome: "Prego Enferrujado", tipo: "Material", raridade: "Comum", slots: 1 },
-
-            // MATERIAIS INTERMEDIÁRIOS (5)
-            { id: 'int_01', nome: "Placa de Aço", tipo: "Componente", raridade: "Raro", slots: 1 },
-            { id: 'int_02', nome: "Circuito Integrado", tipo: "Componente", raridade: "Raro", slots: 1 },
-            { id: 'int_03', nome: "Tecido Kevlar", tipo: "Componente", raridade: "Épico", slots: 1 },
-            { id: 'int_04', nome: "Pólvora Refinada", tipo: "Componente", raridade: "Raro", slots: 1 },
-            { id: 'int_05', nome: "Lente Óptica", tipo: "Componente", raridade: "Raro", slots: 1 },
-
-            // FERRAMENTAS & ARMAS BRANCAS (Slots ajustados)
-            { id: 'wpn_01', nome: "Taco de Beisebol (Madeira)", tipo: "Arma Branca", raridade: "Incomum", slots: 2 },
-            { id: 'wpn_02', nome: "Taco de Beisebol (Alumínio)", tipo: "Arma Branca", raridade: "Raro", slots: 2 },
-            { id: 'wpn_03', nome: "Pé de Cabra", tipo: "Ferramenta", raridade: "Incomum", slots: 2 },
-            { id: 'wpn_04', nome: "Faca de Caça", tipo: "Arma Branca", raridade: "Raro", slots: 1 },
-            { id: 'wpn_05', nome: "Canivete Suíço", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
-            { id: 'wpn_06', nome: "Martelo de Obra", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
-            { id: 'wpn_07', nome: "Chave Inglesa Pesada", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
-            { id: 'wpn_08', nome: "Soco Inglês", tipo: "Arma Branca", raridade: "Incomum", slots: 1 },
-            { id: 'wpn_09', nome: "Cassetete Retrátil", tipo: "Arma Branca", raridade: "Raro", slots: 1 },
-            { id: 'wpn_10', nome: "Corrente de Aço", tipo: "Arma Branca", raridade: "Comum", slots: 1 },
-            { id: 'wpn_11', nome: "Katana Tradicional", tipo: "Arma Branca", raridade: "Épico", slots: 3 },
-            { id: 'wpn_12', nome: "Machado de Bombeiro", tipo: "Arma Branca", raridade: "Raro", slots: 3 },
-            { id: 'wpn_13', nome: "Facão (Machete)", tipo: "Arma Branca", raridade: "Incomum", slots: 2 },
-
-            // ARMAS DE FOGO & ARCOS (Slots maiores)
-            { id: 'gun_01', nome: "Pistola Glock 17", tipo: "Arma de Fogo", raridade: "Épico", slots: 2 },
-            { id: 'gun_02', nome: "Revólver .38", tipo: "Arma de Fogo", raridade: "Raro", slots: 2 },
-            { id: 'gun_03', nome: "Escopeta Serrada", tipo: "Arma de Fogo", raridade: "Lendário", slots: 2 },
-            { id: 'gun_04', nome: "Rifle de Caça", tipo: "Arma de Fogo", raridade: "Lendário", slots: 3 },
-            { id: 'gun_05', nome: "Arco Composto", tipo: "Arma Distância", raridade: "Épico", slots: 3 },
-            { id: 'gun_06', nome: "Besta de Mão", tipo: "Arma Distância", raridade: "Raro", slots: 2 },
-            { id: 'gun_07', nome: "Taser Policial", tipo: "Especial", raridade: "Raro", slots: 1 },
-            { id: 'gun_08', nome: "Spray de Pimenta", tipo: "Defesa", raridade: "Incomum", slots: 1 },
-
-            // MUNIÇÃO (Sempre 1 Slot)
-            { id: 'ammo_01', nome: "Munição 9mm (x3)", tipo: "Munição", raridade: "Incomum", slots: 1 },
-            { id: 'ammo_02', nome: "Munição 9mm (Box)", tipo: "Munição", raridade: "Raro", slots: 1 },
-            { id: 'ammo_03', nome: "Munição .38 (x6)", tipo: "Munição", raridade: "Incomum", slots: 1 },
-            { id: 'ammo_04', nome: "Cartucho Cal.12 (x2)", tipo: "Munição", raridade: "Raro", slots: 1 },
-            { id: 'ammo_05', nome: "Flechas (x3)", tipo: "Munição", raridade: "Raro", slots: 1 },
-            { id: 'ammo_06', nome: "Virotes (x3)", tipo: "Munição", raridade: "Raro", slots: 1 },
-
-            // SUPRIMENTOS MÉDICOS (1 Slot)
-            { id: 'med_01', nome: "Kit Primeiros Socorros", tipo: "Medicina", raridade: "Raro", slots: 1 },
-            { id: 'med_02', nome: "Bandagens", tipo: "Medicina", raridade: "Comum", slots: 1 },
-            { id: 'med_03', nome: "Álcool 70%", tipo: "Medicina", raridade: "Comum", slots: 1 },
-            { id: 'med_04', nome: "Analgésicos", tipo: "Medicina", raridade: "Incomum", slots: 1 },
-            { id: 'med_05', nome: "Adrenalina", tipo: "Medicina", raridade: "Épico", slots: 1 },
-            { id: 'med_06', nome: "Antibióticos", tipo: "Medicina", raridade: "Raro", slots: 1 },
-
-            // UTILITÁRIOS & SOBREVIVÊNCIA
-            { id: 'util_01', nome: "Lanterna Tática", tipo: "Utilitário", raridade: "Incomum", slots: 1 },
-            { id: 'util_02', nome: "Pilhas AA (x4)", tipo: "Recurso", raridade: "Comum", slots: 1 },
-            { id: 'util_03', nome: "Isqueiro Zippo", tipo: "Ferramenta", raridade: "Incomum", slots: 1 },
-            { id: 'util_04', nome: "Corda (10m)", tipo: "Ferramenta", raridade: "Incomum", slots: 1 },
-            { id: 'util_05', nome: "Silver Tape", tipo: "Ferramenta", raridade: "Comum", slots: 1 },
-            { id: 'util_06', nome: "Binóculos", tipo: "Ferramenta", raridade: "Raro", slots: 1 },
-            { id: 'util_07', nome: "Powerbank", tipo: "Eletrônico", raridade: "Incomum", slots: 1 },
-            { id: 'util_08', nome: "Walkie-Talkie", tipo: "Eletrônico", raridade: "Incomum", slots: 1 },
-            { id: 'util_09', nome: "Máscara de Gás", tipo: "Proteção", raridade: "Raro", slots: 1 },
-            { id: 'util_10', nome: "Mochila Militar Peq.", tipo: "Utilitário", raridade: "Raro", slots: 1 }, // (Conceitual, poderia aumentar slots se programado)
-            { id: 'util_11', nome: "Sinalizador (Flare)", tipo: "Consumível", raridade: "Incomum", slots: 1 },
-            { id: 'util_12', nome: "Colete à Prova de Balas", tipo: "Proteção", raridade: "Épico", slots: 2 },
-            { id: 'util_13', nome: "Cola Super Forte", tipo: "Crafting", raridade: "Comum", slots: 1 },
-            { id: 'util_14', nome: "Óleo Lubrificante", tipo: "Manutenção", raridade: "Comum", slots: 1 },
-
-            // COMIDA & DIVERSOS
-            { id: 'food_01', nome: "Garrafa Água 1.5L", tipo: "Consumível", raridade: "Comum", slots: 1 },
-            { id: 'food_02', nome: "Ração Militar MRE", tipo: "Consumível", raridade: "Incomum", slots: 1 },
-            { id: 'food_03', nome: "Barra de Proteína", tipo: "Consumível", raridade: "Comum", slots: 1 },
-            { id: 'food_04', nome: "Lata de Atum", tipo: "Consumível", raridade: "Comum", slots: 1 },
-            { id: 'misc_01', nome: "Maço de Cigarros", tipo: "Troca", raridade: "Comum", slots: 1 },
-            { id: 'misc_02', nome: "Relógio Digital", tipo: "Utilitário", raridade: "Comum", slots: 1 },
-            { id: 'misc_03', nome: "Vodka Barata", tipo: "Consumível", raridade: "Incomum", slots: 1 },
-            { id: 'misc_04', nome: "Baralho", tipo: "Lazer", raridade: "Comum", slots: 1 }
+        // ================= BANCOS DE DADOS (EXTREMOS & EXCLUSIVOS) =================
+        const dataEuNunca = [
+            "Eu nunca beijei alguém que está nesta roda.", "Eu nunca menti sobre a minha idade para conseguir algo.",
+            "Eu nunca mandei uma nude.", "Eu nunca recebi uma nude que não pedi.",
+            "Eu nunca tive um sonho erótico com o parceiro(a) de um amigo.", "Eu nunca fui expulso de um bar ou discoteca.",
+            "Eu nunca nadei nu numa piscina ou praia.", "Eu nunca fingi um orgasmo.",
+            "Eu nunca beijei mais de 3 pessoas na mesma noite.", "Eu nunca mexi no telemóvel de um parceiro às escondidas.",
+            "Eu nunca me envolvi com um colega de trabalho ou chefe.", "Eu nunca traí e saí ileso.",
+            "Eu nunca fui o 'outro' ou a 'outra'.", "Eu nunca beijei o/a ex de um(a) amigo(a).",
+            "Eu nunca fui apanhado a fazer sexo.", "Eu nunca tive de fugir de uma casa de madrugada.",
+            "Eu nunca me apaixonei por duas pessoas ao mesmo tempo.", "Eu nunca disse 'amo-te' só para ir para a cama.",
+            "Eu nunca pesquisei o Instagram da atual do meu ex.", "Eu nunca criei um perfil falso (fake) nas redes sociais.",
+            "Eu nunca dei um beijo triplo.", "Eu nunca fiquei com alguém apenas por vingança.",
+            "Eu nunca fiz ghosting a alguém que gostava muito de mim.", "Eu nunca me envolvi com alguém 10 anos mais velho/novo.",
+            "Eu nunca adormeci durante o sexo.", "Eu nunca vomitei depois de beber demais numa festa.",
+            "Eu nunca fugi de uma conta num restaurante.", "Eu nunca fiz sexo num local público (carro não conta).",
+            "Eu nunca tive ciúmes de um irmão/irmã.", "Eu nunca duvidei da minha orientação sexual."
         ];
 
-        // --- SISTEMA DE RECEITAS ---
-        const RECIPES = [
-            // Processamento de Materiais
-            { result: 'int_01', q: 1, req: [{id: 'mat_01', q: 3}, {id: 'mat_09', q: 2}], desc: "Fundir sucata em chapa" },
-            { result: 'int_02', q: 1, req: [{id: 'mat_07', q: 2}, {id: 'mat_08', q: 3}], desc: "Montar circuito simples" },
-            { result: 'int_03', q: 1, req: [{id: 'mat_03', q: 5}, {id: 'mat_04', q: 2}], desc: "Trançar fibras sintéticas" },
-            
-            // Armas Brancas
-            { result: 'wpn_01', q: 1, req: [{id: 'mat_06', q: 3}, {id: 'util_05', q: 1}], desc: "Reforçar madeira" },
-            { result: 'wpn_03', q: 1, req: [{id: 'mat_01', q: 2}, {id: 'mat_09', q: 2}], desc: "Forjar pé de cabra" },
-            { result: 'wpn_10', q: 1, req: [{id: 'mat_01', q: 2}, {id: 'mat_08', q: 2}], desc: "Entrelaçar elos de metal" },
-            { result: 'wpn_04', q: 1, req: [{id: 'int_01', q: 1}, {id: 'mat_03', q: 1}, {id: 'util_13', q: 1}], desc: "Afiar chapa de aço" },
-
-            // Armas de Fogo & Especial
-            { result: 'gun_02', q: 1, req: [{id: 'int_01', q: 3}, {id: 'mat_06', q: 1}, {id: 'util_14', q: 1}], desc: "Montar revólver artesanal" },
-            { result: 'gun_06', q: 1, req: [{id: 'mat_06', q: 2}, {id: 'util_04', q: 1}, {id: 'mat_01', q: 1}], desc: "Montar pequena besta" },
-            { result: 'gun_08', q: 1, req: [{id: 'mat_04', q: 1}, {id: 'med_03', q: 1}, {id: 'mat_02', q: 1}], desc: "Mistura química irritante" },
-
-            // Munição
-            { result: 'mat_02', q: 2, req: [{id: 'misc_01', q: 2}, {id: 'med_03', q: 1}], desc: "Extrair nitrato" },
-            { result: 'ammo_06', q: 3, req: [{id: 'mat_06', q: 1}, {id: 'mat_01', q: 1}], desc: "Talhar virotes" },
-
-            // Utilitários
-            { result: 'med_02', q: 2, req: [{id: 'mat_03', q: 2}, {id: 'med_03', q: 1}], desc: "Esterilizar tecido" },
-            { result: 'util_12', q: 1, req: [{id: 'int_03', q: 3}, {id: 'int_01', q: 1}, {id: 'util_05', q: 1}], desc: "Costurar colete reforçado" },
-            { result: 'util_03', q: 1, req: [{id: 'mat_01', q: 1}, {id: 'med_03', q: 1}, {id: 'mat_03', q: 1}], desc: "Isqueiro improvisado" }
+        const dataVerdade = [
+            "Qual é o seu maior segredo que ninguém nesta roda sabe?", "Se tivesse que escolher alguém desta roda para um menage, quem seria?",
+            "Qual foi a maior mentira que já contou a um parceiro(a)?", "Quem é a pessoa mais atraente nesta sala?",
+            "Qual foi o lugar mais inapropriado onde já fez amor?", "Já traiu alguém? Se sim, conte os detalhes.",
+            "O que você mais odeia na pessoa à sua direita?", "Qual foi a pior experiência sexual da sua vida?",
+            "Com quem desta roda você nunca se envolveria em hipótese alguma?", "Qual é o seu fetiche mais estranho?",
+            "Já enviou uma mensagem picante para a pessoa errada? Como foi?", "Qual foi a pessoa mais famosa com quem já esteve?",
+            "Quem desta roda tem o pior gosto para relacionamentos?", "Alguma vez julgou alguém desta roda em segredo? Porquê?",
+            "Qual foi a coisa mais humilhante que fez por amor?", "Tem alguma fantasia sexual com alguém que está aqui hoje?",
+            "Qual foi o motivo mais ridículo pelo qual acabou uma relação?", "Já fingiu gostar de alguém só pelo dinheiro/estatuto?",
+            "Qual foi a última vez que chorou por causa de sexo?", "Quem daqui acha que guarda o maior segredo obscuro?"
         ];
 
-        // --- ESTADO GLOBAL ---
-        let inventory = JSON.parse(localStorage.getItem('border_inv_v4')) || [];
+        const dataDesafio = [
+            "Beba um shot do pescoço ou barriga de alguém desta roda à sua escolha.", "Deixe a pessoa à sua esquerda ler a sua última mensagem de WhatsApp em voz alta.",
+            "Dê um beijo no pescoço (com mordida leve) da pessoa à sua direita.", "Tire uma peça de roupa. Sem negociar.",
+            "Ligue para a última pessoa com quem falou e gema ao telemóvel por 10 segundos.", "Faça uma dança de colo (lap dance) à pessoa à sua frente.",
+            "Deixe o grupo escolher uma foto sua no telemóvel para publicar no Instagram Stories agora.", "Dê um beijo de cinema na pessoa que a roda escolher.",
+            "Beba 2 shots seguidos sem fazer careta.", "Vá até à rua e grite 'Eu amo sexo' a plenos pulmões.",
+            "Troque de t-shirt/camisa com a pessoa à sua esquerda.", "Sente-se no colo de quem o grupo decidir durante as próximas 2 rodadas.",
+            "Faça uma massagem sensual aos ombros de quem estiver à sua direita por 1 minuto.", "Coma algo de forma provocante enquanto mantém contacto visual com alguém.",
+            "Mostre a sua última pesquisa no Google ou beba 3 shots.", "Simule um orgasmo perante toda a roda.",
+            "Simule como você flirta com alguém num bar usando a pessoa à sua frente.", "Deixe a pessoa mais velha da roda morder-lhe a orelha."
+        ];
 
-        // --- CORE FUNCTIONS ---
+        const dataTribunal = [
+            "...casar por puro interesse financeiro.", "...ter um caso secreto com o chefe da empresa.",
+            "...ser preso(a) numa despedida de solteiro por atentado ao pudor.", "...fugir do próprio casamento no dia da cerimónia.",
+            "...gastar todo o salário num único fim de semana em bebidas.", "...fazer um barraco monumental num restaurante chique.",
+            "...acordar ao lado de alguém e não fazer ideia do nome da pessoa.", "...viver uma vida dupla com duas famílias.",
+            "...roubar o/a namorado(a) de um amigo chegado.", "...aparecer num reality show e ser o vilão.",
+            "...fazer uma cirurgia plástica bizarra e arrepender-se.", "...sobreviver a um apocalipse zombie traindo toda a gente.",
+            "...vender fotos dos pés na internet.", "...ter um sugar daddy/mommy em segredo.",
+            "...ser apanhado a roubar num supermercado.", "...chorar para não levar uma multa de trânsito.",
+            "...arranjar uma desculpa esfarrapada para não ir trabalhar por ressaca.", "...esconder o corpo se um amigo matasse alguém.",
+            "...casar-se em Las Vegas com um desconhecido."
+        ];
 
-        function getSlotUsage() {
-            return inventory.reduce((acc, item) => acc + item.slots, 0);
+        const dataCalice = [
+            "Qual é a fofoca mais pesada que sabes de alguém que está nesta sala?",
+            "Quem desta sala seria a pior pessoa para namorar e porquê?",
+            "Qual o pior defeito da pessoa que está exatamente à tua frente?",
+            "De quem nesta roda tu sentes inveja secretamente?",
+            "Se fosses obrigado(a) a cortar relações com alguém desta roda para sempre, quem seria?",
+            "Classifica as 3 pessoas mais bonitas da roda, do 1º ao 3º lugar.",
+            "Quem daqui tem a pior reputação na cama, segundo o que já ouviste?",
+            "Qual a atitude mais falsa que já viste alguém desta roda tomar?",
+            "Se pudesses ler as mensagens de WhatsApp de uma pessoa aqui sem ela saber, de quem seria?",
+            "Revela um segredo sobre ti que mudaria a forma como estas pessoas te veem."
+        ];
+
+        const dataRoletaAcoes = [
+            "dar um beijo de 5 segundos na boca de", "beber 2 shots de braços cruzados com",
+            "sentar no colo por 1 rodada inteira de", "fazer uma massagem provocante nos ombros de",
+            "confessar um segredo íntimo ao ouvido de", "trocar uma peça de roupa (agora!) com",
+            "dar um beijo no pescoço de", "ser o escravo pessoal (buscar bebidas, etc) por 10 min de",
+            "fazer uma declaração de amor dramática a", "partilhar uma bebida do mesmo copo com",
+            "dançar de forma sensual para", "dar um estalo (leve e consensual) na cara de",
+            "revelar a primeira impressão que teve de", "ficar de mãos dadas durante 3 rodadas com"
+        ];
+
+        const dataMimica = [
+            "Algemas de Pelúcia", "Dança do Varão (Pole Dance)", "Ressaca de Tequila", "Fugir pela janela depois do sexo", 
+            "Mensagem de Ex às 3 da manhã", "Motel Barato", "Tirar uma Nude", "Testar positivo no bafômetro",
+            "Encontro às cegas desastroso", "Fingir orgasmo", "Ser apanhado pelos pais", "Preservativo rasgado",
+            "Vibrador", "Fazer um chupão", "Depilação íntima dolorosa", "Vomitar no táxi",
+            "Beijo de língua péssimo", "Tirar sutiã com uma mão", "Chorar no banho", "Espiar pelo buraco da fechadura"
+        ];
+
+        const dataEspiaoLocais = [
+            "Motel Luxuoso", "Discoteca Clandestina", "Iate Privado no Mónaco", "Quarto Escuro", 
+            "Despedida de Solteiro", "Casamento Real", "Casino VIP", "Cabine de Prova da Zara",
+            "Casa de Banho do Avião", "Sede de um Culto", "Bastidores de um Desfile", "Masmorra BDSM",
+            "Praia de Nudismo", "Clínica de Reabilitação", "Set de Filmagens Adultas"
+        ];
+
+        // ================= LÓGICA DO SISTEMA (ELENCO OBRIGATÓRIO) =================
+        let globalPlayers = [];
+        let pandoraSecrets = [];
+
+        function addPlayer() {
+            const input = document.getElementById('setup-input');
+            const name = input.value.trim();
+            if(name && !globalPlayers.includes(name)) {
+                globalPlayers.push(name);
+                input.value = '';
+                renderPlayers();
+            }
         }
 
-        function notificar(msg, type='info') {
-            const area = document.getElementById('notification-area');
-            const div = document.createElement('div');
-            const color = type === 'error' ? 'text-red-500 border-red-900' : 'text-[#ff003c] border-[#ff003c]';
-            div.className = `bg-black border p-2 text-xs font-bold uppercase tracking-widest shadow-lg ${color} animate-bounce`;
-            div.innerText = msg;
-            area.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
+        function removePlayer(name) {
+            globalPlayers = globalPlayers.filter(p => p !== name);
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('setup-list');
+            const countEl = document.getElementById('player-count');
+            const btnEnter = document.getElementById('btn-enter-salon');
+
+            countEl.innerText = globalPlayers.length;
+
+            if (globalPlayers.length === 0) {
+                container.innerHTML = `<p class="text-[0.65rem] text-gray-400 italic uppercase tracking-widest mt-4">A lista está vazia.</p>`;
+            } else {
+                container.innerHTML = globalPlayers.map(p => 
+                    `<div class="bg-white px-4 py-2 rounded-sm border border-[#D4AF37] text-gray-800 text-xs flex items-center gap-3 shadow-sm font-bold tracking-widest uppercase">
+                        ${p} <button onclick="removePlayer('${p}')" class="text-red-500 hover:text-red-700 font-bold text-sm">×</button>
+                    </div>`
+                ).join('');
+            }
+
+            // Habilitar a entrada no salão apenas se tiver 3 ou mais
+            if (globalPlayers.length >= 3) {
+                btnEnter.disabled = false;
+                countEl.classList.add('text-green-500');
+                countEl.classList.remove('text-[#D4AF37]', 'text-red-500');
+            } else {
+                btnEnter.disabled = true;
+                countEl.classList.add('text-red-500');
+                countEl.classList.remove('text-green-500', 'text-[#D4AF37]');
+            }
+        }
+
+        function enterSalon() {
+            if (globalPlayers.length < 3) return;
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-menu').classList.add('active');
             
-            // Adicionar ao log
-            const log = document.getElementById('activity-log');
-            const entry = document.createElement('li');
-            entry.innerText = `> ${msg}`;
-            log.prepend(entry);
+            // Ativa o Header e esconde o botão de voltar nele (estamos no menu principal)
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('btnBack').classList.add('hidden');
         }
 
-        function adicionarItem(id) {
-            const item = ITEMS.find(i => i.id === id);
-            if (!item) return;
+        function openSetup(isEditing = false) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-setup').classList.add('active');
+            document.getElementById('main-header').classList.add('hidden');
+            
+            if(isEditing && globalPlayers.length >= 3) {
+                document.getElementById('btn-return-menu').classList.remove('hidden');
+                document.getElementById('btn-enter-salon').innerText = "Guardar Alterações";
+            }
+            renderPlayers();
+        }
 
-            if (getSlotUsage() + item.slots > 9) {
-                notificar("MOCHILA CHEIA! LIBERE ESPAÇO.", "error");
+        function goHome() {
+            if (globalPlayers.length < 3) {
+                showAlert("Precisa de pelo menos 3 participantes no Elenco.");
+                return;
+            }
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-menu').classList.add('active');
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('btnBack').classList.add('hidden');
+            clearInterval(mimicaInterval);
+        }
+
+        function openGame(gameId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${gameId}`).classList.add('active');
+            document.getElementById('btnBack').classList.remove('hidden');
+            
+            if(gameId === 'mimica') initMimica();
+            if(gameId === 'pandora') initPandora();
+            if(gameId === 'calice') resetCalice();
+            if(gameId === 'espiao') resetEspiaoUI();
+        }
+
+        function getRandom(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // ================= MODAIS & UTILIDADES =================
+        function openCustomModal(gamePrefix) {
+            document.getElementById('customTargetGame').value = gamePrefix;
+            document.getElementById('customInputText').value = '';
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function playCustomCard() {
+            const text = document.getElementById('customInputText').value.trim();
+            if (!text) return;
+            const target = document.getElementById('customTargetGame').value;
+            
+            const el = document.getElementById(`${target}-text`) || document.getElementById('mimica-word');
+            
+            if (target === 'en') el.innerText = `Eu nunca... ${text}`;
+            else if (target === 'vd') el.innerHTML = `<span class="text-[0.65rem] text-[#D4AF37] font-bold uppercase tracking-widest block mb-2">Punição Exclusiva</span>${text}`;
+            else if (target === 'tr') el.innerText = `Quem é mais provável de ${text}?`;
+            else if (target === 'rl') el.innerHTML = `<span class="text-gold font-bold text-xl uppercase tracking-widest">Ação Manual:</span><br><br>${text}`;
+            else if (target === 'mi') el.innerText = text;
+
+            closeCustomModal();
+            el.style.opacity = 0;
+            setTimeout(() => el.style.opacity = 1, 100);
+        }
+
+        function showAlert(msg) {
+            document.getElementById('alertText').innerText = msg;
+            const modal = document.getElementById('alertModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+        function closeAlert() {
+            const modal = document.getElementById('alertModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // ================= LÓGICA DE CARTAS (EU NUNCA / TRIBUNAL / VD) =================
+        function nextCard(prefix, array) {
+            const el = document.getElementById(`${prefix}-text`);
+            el.style.opacity = 0;
+            setTimeout(() => {
+                let txt = getRandom(array);
+                if (prefix === 'en') txt = `Eu nunca... ${txt.replace('Eu nunca ', '')}`;
+                if (prefix === 'tr') txt = `Quem é mais provável de ${txt.replace('...', '')}?`;
+                el.innerText = txt;
+                el.style.opacity = 1;
+            }, 300);
+        }
+
+        function nextCardVD(type) {
+            const el = document.getElementById('vd-text');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerHTML = type === 'verdade' 
+                    ? `<span class="text-[0.65rem] text-gray-500 uppercase tracking-widest block mb-2 font-bold">A Verdade</span>${getRandom(dataVerdade)}`
+                    : `<span class="text-[0.65rem] text-[#D4AF37] uppercase tracking-widest block mb-2 font-bold">O Desafio</span>${getRandom(dataDesafio)}`;
+                el.style.opacity = 1;
+            }, 300);
+        }
+
+        // ================= CÁLICE DA VERDADE (COM ELENCO GLOBAL) =================
+        function resetCalice() {
+            document.getElementById('calice-text').innerText = "A roda vai escolher a próxima vítima.";
+            document.getElementById('calice-player').classList.add('hidden');
+            document.getElementById('calice-shot-badge').classList.add('hidden');
+            document.getElementById('calice-actions').classList.add('hidden');
+            document.getElementById('btn-calice-spin').classList.remove('hidden');
+        }
+
+        function spinCalice() {
+            const player = getRandom(globalPlayers);
+            const question = getRandom(dataCalice);
+            const shots = Math.floor(Math.random() * 3) + 1; // 1 a 3 shots
+
+            document.getElementById('btn-calice-spin').classList.add('hidden');
+            
+            const elText = document.getElementById('calice-text');
+            const elPlayer = document.getElementById('calice-player');
+            const elBadge = document.getElementById('calice-shot-badge');
+            const elActions = document.getElementById('calice-actions');
+
+            elText.style.opacity = 0;
+            setTimeout(() => {
+                elPlayer.innerHTML = `Sua vez: <span class="text-gold font-bold text-xl ml-2 uppercase tracking-widest">${player}</span>`;
+                elPlayer.classList.remove('hidden');
+                
+                elBadge.innerText = `${shots} Shot${shots > 1 ? 's' : ''}`;
+                elBadge.classList.remove('hidden');
+
+                elText.innerText = question;
+                elText.style.opacity = 1;
+
+                elActions.classList.remove('hidden');
+            }, 600);
+        }
+
+        // ================= CAIXA DE PANDORA =================
+        function initPandora() {
+            pandoraSecrets = [];
+            document.getElementById('pandora-count').innerText = 0;
+            document.getElementById('pandora-input-phase').classList.remove('hidden');
+            document.getElementById('pandora-read-phase').classList.add('hidden');
+            document.getElementById('pandora-input').value = '';
+        }
+
+        function submitPandora() {
+            const input = document.getElementById('pandora-input');
+            const secret = input.value.trim();
+            if (secret) {
+                pandoraSecrets.push(secret);
+                input.value = '';
+                document.getElementById('pandora-count').innerText = pandoraSecrets.length;
+                
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Guardado!";
+                btn.style.borderColor = "#22c55e";
+                btn.style.color = "#22c55e";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.borderColor = "var(--gold-main)";
+                    btn.style.color = "var(--gold-dark)";
+                }, 1000);
+            }
+        }
+
+        function startPandoraRead() {
+            if (pandoraSecrets.length === 0) {
+                showAlert("Ninguém escreveu nenhum segredo. A caixa está vazia.");
+                return;
+            }
+            pandoraSecrets.sort(() => Math.random() - 0.5);
+            document.getElementById('pandora-input-phase').classList.add('hidden');
+            document.getElementById('pandora-read-phase').classList.remove('hidden');
+            nextPandora();
+        }
+
+        function nextPandora() {
+            const el = document.getElementById('pandora-text');
+            if (pandoraSecrets.length === 0) {
+                el.innerHTML = "<span class='text-gray-500 text-sm'>A caixa está vazia. Todos os segredos foram revelados.</span>";
+                return;
+            }
+            el.style.opacity = 0;
+            setTimeout(() => {
+                const secret = pandoraSecrets.pop();
+                el.innerText = `"${secret}"`;
+                el.style.opacity = 1;
+            }, 300);
+        }
+
+        // ================= ROLETA (COM ELENCO GLOBAL) =================
+        function spinRoleta() {
+            const el = document.getElementById('roleta-result');
+            el.innerHTML = `<span class="text-gray-400 text-sm uppercase tracking-widest font-bold">Cruzando destinos...</span>`;
+            
+            setTimeout(() => {
+                let p1 = getRandom(globalPlayers);
+                let p2 = getRandom(globalPlayers);
+                while(p1 === p2) p2 = getRandom(globalPlayers); 
+                
+                const acao = getRandom(dataRoletaAcoes);
+                el.innerHTML = `<span class="text-gold font-bold text-2xl uppercase tracking-widest">${p1}</span><br><br><span class="text-xs text-gray-500 uppercase tracking-widest block mb-2">deve</span>${acao}<br><br><span class="text-gold font-bold text-2xl uppercase tracking-widest">${p2}</span>.`;
+            }, 1200);
+        }
+
+        // ================= MÍMICA =================
+        let mimicaTimer = 60;
+        let mimicaInterval;
+        let isMimicaRunning = false;
+
+        function initMimica() {
+            document.getElementById('mimica-timer').innerText = "60";
+            document.getElementById('mimica-word').innerText = "Pronto?";
+            document.getElementById('btn-mimica-start').innerText = "Iniciar";
+            isMimicaRunning = false;
+            clearInterval(mimicaInterval);
+        }
+
+        function toggleMimicaTimer() {
+            if(isMimicaRunning) {
+                clearInterval(mimicaInterval);
+                document.getElementById('btn-mimica-start').innerText = "Retomar";
+                isMimicaRunning = false;
+            } else {
+                if(document.getElementById('mimica-word').innerText === "Pronto?") nextMimica();
+                
+                document.getElementById('btn-mimica-start').innerText = "Pausar";
+                isMimicaRunning = true;
+                mimicaInterval = setInterval(() => {
+                    mimicaTimer--;
+                    document.getElementById('mimica-timer').innerText = mimicaTimer;
+                    if(mimicaTimer <= 0) {
+                        clearInterval(mimicaInterval);
+                        isMimicaRunning = false;
+                        document.getElementById('mimica-word').innerText = "TEMPO ESGOTADO!";
+                        document.getElementById('btn-mimica-start').innerText = "Novo Turno";
+                        mimicaTimer = 60;
+                    }
+                }, 1000);
+            }
+        }
+
+        function nextMimica() {
+            const el = document.getElementById('mimica-word');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerText = getRandom(dataMimica);
+                el.style.opacity = 1;
+            }, 200);
+        }
+
+        // ================= O ESPIÃO (COM ELENCO GLOBAL) =================
+        let espiaoRoles = [];
+        let espiaoCurrentIndex = 0;
+        let shuffledPlayers = [];
+
+        function resetEspiaoUI() {
+            document.getElementById('espiao-setup').classList.remove('hidden');
+            document.getElementById('espiao-play').classList.add('hidden');
+        }
+
+        function startEspiao() {
+            const count = globalPlayers.length;
+            const local = getRandom(dataEspiaoLocais);
+            
+            espiaoRoles = Array(count).fill(local);
+            espiaoRoles[Math.floor(Math.random() * count)] = "Você é o ESPIÃO!";
+            
+            // Ordem aleatória de quem recebe o telemóvel
+            shuffledPlayers = [...globalPlayers].sort(() => Math.random() - 0.5);
+            espiaoCurrentIndex = 0;
+            
+            document.getElementById('espiao-setup').classList.add('hidden');
+            document.getElementById('espiao-play').classList.remove('hidden');
+            updateEspiaoScreen();
+        }
+
+        function updateEspiaoScreen() {
+            document.getElementById('espiao-current-player').innerText = shuffledPlayers[espiaoCurrentIndex];
+            
+            const hiddenLayer = document.getElementById('espiao-hidden');
+            const revealedLayer = document.getElementById('espiao-revealed');
+            
+            hiddenLayer.classList.remove('hidden');
+            revealedLayer.classList.add('hidden');
+            document.getElementById('btn-espiao-next').classList.add('hidden');
+        }
+
+        function toggleEspiaoReveal() {
+            const hidden = document.getElementById('espiao-hidden');
+            const revealed = document.getElementById('espiao-revealed');
+            
+            if(!hidden.classList.contains('hidden')) {
+                // Ao clicar para Revelar
+                hidden.classList.add('hidden');
+                revealed.classList.remove('hidden');
+                
+                const wordEl = document.getElementById('espiao-word-display');
+                const word = espiaoRoles[espiaoCurrentIndex];
+                wordEl.innerText = word;
+                
+                if(word.includes("ESPIÃO")) wordEl.classList.add('text-red-600');
+                else wordEl.classList.remove('text-red-600');
+
+                document.getElementById('btn-espiao-next').classList.remove('hidden');
+            } else {
+                // Ao clicar para Esconder de novo
+                hidden.classList.remove('hidden');
+                revealed.classList.add('hidden');
+            }
+        }
+
+        function nextEspiaoPlayer() {
+            const revealed = document.getElementById('espiao-revealed');
+            // Só deixa passar se o segredo estiver escondido (por segurança)
+            if(!revealed.classList.contains('hidden')) {
+                showAlert("Por favor, toque na carta para esconder o segredo antes de passar o telemóvel!");
                 return;
             }
 
-            const instance = { ...item, uid: Date.now() + Math.random() };
-            inventory.push(instance);
-            notificar(`+ ${item.nome}`);
-            renderAll();
-        }
-
-        function removerItem(uid) {
-            inventory = inventory.filter(i => i.uid !== uid);
-            renderAll();
-        }
-
-        function craftItem(index) {
-            const recipe = RECIPES[index];
-            
-            // Verificar
-            const missing = [];
-            recipe.req.forEach(req => {
-                const count = inventory.filter(i => i.id === req.id).length;
-                if (count < req.q) missing.push(`${req.q - count}x ${ITEMS.find(x => x.id === req.id).nome}`);
-            });
-
-            if (missing.length > 0) {
-                notificar(`Falta: ${missing.join(', ')}`, "error");
-                return;
-            }
-
-            // Consumir
-            recipe.req.forEach(req => {
-                for(let i=0; i<req.q; i++) {
-                    const idx = inventory.findIndex(x => x.id === req.id);
-                    if(idx > -1) inventory.splice(idx, 1);
-                }
-            });
-
-            // Adicionar resultado
-            adicionarItem(recipe.result);
-            // Se o item resultante tiver quantidade > 1 (ex: munição), adicionar o resto
-            // A função adicionarItem já trata um item, se a receita diz q:3, precisamos adicionar mais 2 loops
-            // Mas minha função adicionarItem chama renderAll. Para evitar spam, vamos fazer um loop silencioso ou apenas chamar add
-            for(let i=1; i<recipe.q; i++) {
-                // Adiciona sem notificação visual excessiva para os extras, ou apenas chama a função
-                 const item = ITEMS.find(x => x.id === recipe.result);
-                 if (getSlotUsage() + item.slots <= 9) {
-                     inventory.push({ ...item, uid: Date.now() + Math.random() });
-                 }
-            }
-            notificar(`FABRICADO: ${ITEMS.find(i=>i.id === recipe.result).nome}`);
-            renderAll();
-        }
-
-        function limparTudo() {
-            if(confirm("Resetar todo o inventário?")) {
-                inventory = [];
-                renderAll();
-            }
-        }
-
-        // --- RENDERIZAÇÃO ---
-
-        function renderAll() {
-            localStorage.setItem('border_inv_v4', JSON.stringify(inventory));
-            renderMochila();
-            renderDatabase(); // Para atualizar status de receitas se estiver na aba, mas opcional
-            renderCrafting();
-            lucide.createIcons();
-        }
-
-        function renderMochila() {
-            const grid = document.getElementById('main-grid');
-            grid.innerHTML = '';
-            
-            // Render Slots
-            inventory.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `mc-slot occupied item-size-${item.slots} group cursor-pointer`;
-                div.onclick = () => removerItem(item.uid);
-                
-                // Icon Logic (Simple Text fallback or Lucide)
-                let iconName = 'package';
-                if(item.tipo.includes('Arma')) iconName = 'sword';
-                if(item.tipo.includes('Fogo')) iconName = 'crosshair';
-                if(item.tipo.includes('Medicina')) iconName = 'heart-pulse';
-                if(item.tipo.includes('Material')) iconName = 'box';
-
-                div.innerHTML = `
-                    <i data-lucide="${iconName}" class="mb-1 text-white/50 group-hover:text-[#ff003c] transition-colors" size="16"></i>
-                    <span class="text-[9px] font-bold text-center leading-tight uppercase px-1 ${getRarityColor(item.raridade)}">${item.nome}</span>
-                    <div class="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 bg-black/80 text-[8px] text-red-500 font-bold">X</div>
-                `;
-                grid.appendChild(div);
-            });
-
-            // Empty Slots Fill
-            const used = getSlotUsage();
-            const total = 9;
-            document.getElementById('slot-counter').innerText = `${used} / ${total}`;
-            document.getElementById('bar-carga').style.width = `${(used/total)*100}%`;
-
-            // Preenche visualmente apenas se não for sistema fluido. Como é grid Minecraft (3x3 fixo),
-            // a lógica de "fill" é complexa com itens de tamanhos variados. 
-            // Abordagem simples: Grid CSS lida com posicionamento. Se sobrar espaço visual no DOM, 
-            // preenchemos com div vazias apenas para manter a grade se não houver itens suficientes.
-            // Mas com itens de tamanhos variados, preencher "buracos" exatos é difícil via JS simples.
-            // Vamos deixar o Grid CSS organizar os itens e preencher o resto com slots vazios 1x1 até 9 elementos DOM totais?
-            // Não, melhor deixar apenas os itens e o fundo do container fazer o resto. 
-            // Para visual de grid vazio:
-            if (inventory.length === 0) {
-                 for(let i=0; i<9; i++) {
-                     grid.innerHTML += `<div class="bg-[#111] border border-[#222] rounded-sm opacity-20"></div>`;
-                 }
-            }
-        }
-
-        function renderDatabase() {
-            const list = document.getElementById('database-list');
-            const search = document.getElementById('search-loot').value.toLowerCase();
-            const filter = document.getElementById('filter-loot').value;
-
-            list.innerHTML = '';
-
-            ITEMS.filter(item => {
-                const matchText = item.nome.toLowerCase().includes(search) || item.tipo.toLowerCase().includes(search);
-                const matchFilter = filter === 'all' || item.raridade === filter;
-                return matchText && matchFilter;
-            }).forEach(item => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-zinc-900/40 p-2 border border-zinc-800 hover:border-zinc-600 transition-all group";
-                div.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-[10px] font-bold uppercase ${getRarityColor(item.raridade)}">${item.nome}</span>
-                        <span class="text-[8px] text-zinc-600 uppercase">${item.tipo} • ${item.slots} SLOT(S)</span>
-                    </div>
-                    <button onclick="adicionarItem('${item.id}')" class="text-zinc-500 hover:text-[#ff003c] transition-colors">
-                        <i data-lucide="plus-square" size="18"></i>
-                    </button>
-                `;
-                list.appendChild(div);
-            });
-            lucide.createIcons();
-        }
-
-        function renderCrafting() {
-            const list = document.getElementById('recipes-list');
-            list.innerHTML = '';
-
-            RECIPES.forEach((rec, idx) => {
-                const resultItem = ITEMS.find(i => i.id === rec.result);
-                
-                // Check if craftable
-                let craftable = true;
-                const ingredientsHTML = rec.req.map(r => {
-                    const have = inventory.filter(x => x.id === r.id).length;
-                    const name = ITEMS.find(x => x.id === r.id).nome;
-                    if(have < r.q) craftable = false;
-                    const color = have >= r.q ? 'text-green-500' : 'text-red-500';
-                    return `<span class="${color} text-[9px] block">• ${have}/${r.q} ${name}</span>`;
-                }).join('');
-
-                const div = document.createElement('div');
-                div.className = `p-3 border ${craftable ? 'border-zinc-600 bg-zinc-900/50 hover:border-green-500 cursor-pointer' : 'border-zinc-900 bg-black opacity-60 cursor-not-allowed'} transition-all`;
-                if(craftable) div.onclick = () => { craftItem(idx); mostrarPreview(idx); };
-                div.onclick = () => mostrarPreview(idx); // Mostra mesmo se não der pra craftar
-
-                div.innerHTML = `
-                    <div class="flex justify-between mb-1">
-                        <span class="text-xs font-bold uppercase ${getRarityColor(resultItem.raridade)}">${resultItem.nome}</span>
-                        ${craftable ? '<i data-lucide="hammer" size="12" class="text-green-500"></i>' : '<i data-lucide="lock" size="12" class="text-zinc-700"></i>'}
+            espiaoCurrentIndex++;
+            if(espiaoCurrentIndex >= espiaoRoles.length) {
+                document.getElementById('espiao-play').innerHTML = `
+                    <div class="text-center py-10 w-full">
+                        <h3 class="font-cinzel text-2xl text-gold mb-4">A Caça Começou</h3>
+                        <p class="text-[0.65rem] text-gray-600 mb-8 px-4 uppercase tracking-widest font-bold">Todos viram o seu papel. Façam perguntas subtis uns aos outros. Se o grupo descobrir o espião, o espião bebe 2 shots. Se o espião adivinhar o local, o grupo bebe.</p>
+                        <button onclick="openGame('espiao')" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Jogar Nova Partida</button>
                     </div>
                 `;
-                list.appendChild(div);
-            });
-        }
-
-        function mostrarPreview(idx) {
-            const rec = RECIPES[idx];
-            const item = ITEMS.find(i => i.id === rec.result);
-            const container = document.getElementById('craft-preview');
-            
-            // Check ingredients again for preview
-            let btnClass = "bg-zinc-800 text-zinc-500 cursor-not-allowed";
-            let btnText = "MATERIAIS INSUFICIENTES";
-            let canCraft = true;
-            
-            const ingList = rec.req.map(r => {
-                const have = inventory.filter(x => x.id === r.id).length;
-                const iData = ITEMS.find(x => x.id === r.id);
-                if(have < r.q) canCraft = false;
-                return `
-                    <div class="flex justify-between text-[10px] w-full border-b border-zinc-800 py-1">
-                        <span class="text-zinc-400">${iData.nome}</span>
-                        <span class="${have >= r.q ? 'text-green-500' : 'text-red-500'} font-mono">${have}/${r.q}</span>
-                    </div>
-                `;
-            }).join('');
-
-            if(canCraft) {
-                btnClass = "bg-[#ff003c] text-black hover:bg-white hover:shadow-[0_0_15px_#ff003c] cursor-pointer";
-                btnText = "FABRICAR ITEM";
+            } else {
+                updateEspiaoScreen();
             }
-
-            container.classList.remove('opacity-50');
-            container.innerHTML = `
-                <div class="text-4xl mb-2 text-zinc-700 p-4 border border-zinc-800 bg-black">
-                    <i data-lucide="package" size="48"></i>
-                </div>
-                <h2 class="text-lg font-bold uppercase ${getRarityColor(item.raridade)} mb-1">${item.nome}</h2>
-                <p class="text-[10px] text-zinc-500 mb-6 uppercase tracking-widest">${rec.desc}</p>
-                
-                <div class="w-full max-w-xs bg-black p-4 border border-zinc-800 mb-6">
-                    <h4 class="text-[9px] text-zinc-500 uppercase mb-2 text-left">Componentes Necessários:</h4>
-                    ${ingList}
-                </div>
-
-                <button onclick="${canCraft ? `craftItem(${idx})` : ''}" class="w-full max-w-xs py-3 font-bold uppercase tracking-widest transition-all ${btnClass}">
-                    ${btnText}
-                </button>
-            `;
-            lucide.createIcons();
         }
 
-        // --- UTILS ---
+        // Renderiza lista vazia no arranque (esperando que o user adicione)
+        renderPlayers();
 
-        function getRarityColor(raridade) {
-            const map = {
-                'Comum': 'text-zinc-400',
-                'Incomum': 'text-green-400',
-                'Raro': 'text-blue-400',
-                'Épico': 'text-purple-400',
-                'Lendário': 'text-amber-400'
-            };
-            return map[raridade] || 'text-white';
-        }
-
-        function mudarAba(aba) {
-            // UI Update
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-btn-${aba}`).classList.add('active');
-            
-            // Content Update
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(`tab-${aba}`).classList.add('active');
-            
-            if(aba === 'craft') renderCrafting();
-            if(aba === 'loot') renderDatabase();
-        }
-
-        window.exportarImagem = () => {
-            html2canvas(document.body).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'borderland-inv-full.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        };
-
-        // Init
-        renderAll();
-        lucide.createIcons();
     </script>
 </body>
 </html>
