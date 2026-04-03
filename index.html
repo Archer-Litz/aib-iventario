@@ -104,6 +104,23 @@
             outline: none;
             border-bottom: 1px solid var(--gold-main);
         }
+        
+        .textarea-elegant {
+            background: #F9F9F9;
+            border: 1px solid #E0E0E0;
+            color: var(--text-main);
+            padding: 15px;
+            width: 100%;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+            resize: none;
+        }
+        .textarea-elegant:focus {
+            outline: none;
+            border-color: var(--gold-main);
+            background: #FFF;
+        }
 
         /* Cards do Menu */
         .game-card {
@@ -145,6 +162,7 @@
             padding: 2.5rem;
             text-align: center;
             position: relative;
+            width: 100%;
         }
         .play-card::before {
             content: '';
@@ -152,12 +170,6 @@
             top: 5px; right: 5px; bottom: 5px; left: 5px;
             border: 1px solid rgba(212, 175, 55, 0.1);
             pointer-events: none;
-        }
-
-        /* Modais */
-        .modal-overlay {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
         }
 
         .shot-badge {
@@ -188,30 +200,26 @@
 
     <main class="flex-grow flex flex-col relative w-full max-w-2xl mx-auto p-4 md:p-8">
 
-        <!-- ================= ECRÃ 1: SETUP (OBRIGATÓRIO INICIAL) ================= -->
+        <!-- ================= ECRÃ 1: SETUP (ELENCO OBRIGATÓRIO) ================= -->
         <section id="screen-setup" class="screen active flex-col w-full h-full items-center pt-8">
             <h1 class="font-cinzel text-4xl text-gold mb-2 tracking-widest text-center">LIBERTINÉ</h1>
             <h2 class="font-cinzel text-xl text-gray-800 mb-2 uppercase tracking-widest text-center mt-6">O Elenco</h2>
-            <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest text-center mb-8">Adicione os nomes de quem está na festa.<br>Mínimo de 3 jogadores para abrir o Salão.</p>
+            <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest text-center mb-8">Quem está na festa?<br>Mínimo de 3 convidados.</p>
 
             <div class="flex gap-2 w-full max-w-sm mx-auto mb-6">
-                <!-- onkeydown captura o Enter (Código seguro) -->
                 <input type="text" id="setup-input" placeholder="Ex: Maria" class="input-elegant flex-grow" onkeydown="if(event.key === 'Enter') addPlayer()">
                 <button onclick="addPlayer()" class="btn-solid-gold px-6 uppercase text-xs tracking-widest font-bold">Adicionar</button>
             </div>
 
-            <p class="text-[0.65rem] text-gray-400 uppercase tracking-widest mb-2">Participantes: <span id="player-count" class="text-[#D4AF37] font-bold">0</span></p>
+            <p class="text-[0.65rem] text-gray-400 uppercase tracking-widest mb-2">Convidados: <span id="player-count" class="text-[#D4AF37] font-bold">0</span></p>
             
-            <div id="setup-list" class="flex flex-wrap gap-2 justify-center w-full max-w-sm mx-auto mb-8 min-h-[120px] content-start">
-                <!-- Players will appear here -->
-            </div>
+            <div id="setup-list" class="flex flex-wrap gap-2 justify-center w-full max-w-sm mx-auto mb-8 min-h-[120px] content-start"></div>
 
             <button id="btn-enter-salon" onclick="enterSalon()" disabled class="btn-solid-gold w-full max-w-sm mx-auto py-4 uppercase tracking-widest text-sm font-bold transition-all">
                 Abrir Salão de Jogos
             </button>
-            
             <button id="btn-return-menu" onclick="goHome()" class="btn-ghost w-full max-w-sm mx-auto py-3 uppercase tracking-widest text-xs mt-3 hidden">
-                Voltar ao Menu Principal
+                Voltar ao Menu
             </button>
         </section>
 
@@ -219,213 +227,270 @@
         <section id="screen-menu" class="screen flex-col w-full h-full pb-8">
             <div class="text-center mb-8 mt-2">
                 <h2 class="font-cinzel text-2xl text-gray-800 mb-2">Salão de Jogos</h2>
-                <p class="text-[0.65rem] text-gray-500 uppercase tracking-[0.2em]">Exponha, beba e confesse</p>
+                <p class="text-[0.65rem] text-gray-500 uppercase tracking-[0.2em]">Crie. Provoque. Beba.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div onclick="openGame('eu-nunca')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">🍷</span>
                     <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Eu Nunca</h3>
-                    <p class="text-[0.6rem] text-gray-500">Cometeu o pecado? Beba.</p>
+                    <p class="text-[0.6rem] text-gray-500">Invente um pecado.</p>
                 </div>
-
                 <div onclick="openGame('verdade-desafio')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">🎭</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Verdade ou Desafio</h3>
-                    <p class="text-[0.6rem] text-gray-500">Exponha-se ou sofra.</p>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Verdade / Desafio</h3>
+                    <p class="text-[0.6rem] text-gray-500">Desafie os seus pares.</p>
                 </div>
-
                 <div onclick="openGame('calice')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
                     <span class="text-3xl mb-2">👑</span>
                     <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Cálice da Verdade</h3>
-                    <p class="text-[0.6rem] text-gray-600">A roda escolhe. Fofoca dura ou shots.</p>
+                    <p class="text-[0.6rem] text-gray-600">Revelações profundas ou punição.</p>
                 </div>
-
                 <div onclick="openGame('pandora')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
                     <span class="text-3xl mb-2">📦</span>
                     <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Caixa de Pandora</h3>
-                    <p class="text-[0.6rem] text-gray-600">Fofocas anónimas. Quem escreveu?</p>
+                    <p class="text-[0.6rem] text-gray-600">Confissões anónimas.</p>
                 </div>
-
                 <div onclick="openGame('tribunal')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">⚖️</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Tribunal</h3>
-                    <p class="text-[0.6rem] text-gray-500">Apontem ao culpado. O eleito bebe.</p>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">O Tribunal</h3>
+                    <p class="text-[0.6rem] text-gray-500">Julgue quem é mais provável.</p>
                 </div>
-
                 <div onclick="openGame('roleta')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">🎯</span>
                     <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Roleta</h3>
-                    <p class="text-[0.6rem] text-gray-500">Destinos cruzados aleatoriamente.</p>
+                    <p class="text-[0.6rem] text-gray-500">Cruzamentos do destino.</p>
                 </div>
-
                 <div onclick="openGame('mimica')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">🤫</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Mímica Adulta</h3>
-                    <p class="text-[0.6rem] text-gray-500">Sem palavras. Apenas gestos.</p>
+                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Mímica</h3>
+                    <p class="text-[0.6rem] text-gray-500">Escolha a palavra secreta.</p>
                 </div>
-
                 <div onclick="openGame('espiao')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
                     <span class="text-3xl mb-2">🕵️</span>
                     <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">O Espião</h3>
-                    <p class="text-[0.6rem] text-gray-500">Encontrem o infiltrado na festa.</p>
+                    <p class="text-[0.6rem] text-gray-500">Um Mestre cria o local.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ================= ECRÃ: EU NUNCA ================= -->
-        <section id="screen-eu-nunca" class="screen flex-col w-full h-full items-center justify-center pt-4">
-            <h2 class="font-cinzel text-2xl text-gold mb-2 uppercase tracking-widest">Eu Nunca</h2>
-            <p class="text-[0.6rem] text-gray-500 uppercase tracking-widest mb-8">Quem já fez, bebe 1 shot.</p>
+        <!-- ================= ECRÃS DOS JOGOS ================= -->
+        
+        <!-- EU NUNCA -->
+        <section id="screen-eu-nunca" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-2xl text-gold mb-6 uppercase tracking-widest text-center">Eu Nunca</h2>
             
-            <div class="play-card w-full max-w-sm mb-6">
-                <p id="en-text" class="font-cinzel text-[1.3rem] text-gray-800 leading-relaxed px-2">Clique para revelar o primeiro pecado.</p>
+            <div id="en-phase-input" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">É a vez de inventar:</p>
+                <p id="en-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
+                <textarea id="en-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreve aqui o teu 'Eu nunca...'"></textarea>
+                <button onclick="submitEN()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Lançar para a Roda</button>
             </div>
 
-            <div class="flex flex-col gap-3 w-full max-w-sm">
-                <button onclick="nextCard('en', dataEuNunca)" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Pecado</button>
-                <button onclick="openCustomModal('en')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Criar Pergunta Customizada</button>
-            </div>
-        </section>
-
-        <!-- ================= ECRÃ: VERDADE OU DESAFIO ================= -->
-        <section id="screen-verdade-desafio" class="screen flex-col w-full h-full items-center justify-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-8 uppercase tracking-widest text-center">Verdade ou<br>Desafio</h2>
-            
-            <div class="play-card w-full max-w-sm mb-6">
-                <p id="vd-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Façam a vossa escolha.</p>
-            </div>
-
-            <div class="flex flex-col gap-3 w-full max-w-sm">
-                <div class="flex gap-3">
-                    <button onclick="nextCardVD('verdade')" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Verdade</button>
-                    <button onclick="nextCardVD('desafio')" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Desafio</button>
+            <div id="en-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-[0.6rem] text-gray-500 uppercase tracking-widest mb-4">Quem já fez, bebe 1 shot.</p>
+                <div class="play-card w-full mb-6">
+                    <p class="text-xs text-[#D4AF37] uppercase tracking-widest mb-4 font-bold">Eu Nunca...</p>
+                    <p id="en-text" class="font-cinzel text-2xl text-gray-800 leading-relaxed px-2"></p>
                 </div>
-                <button onclick="openCustomModal('vd')" class="btn-ghost w-full py-3 uppercase tracking-widest text-xs">Criar Desafio Personalizado</button>
+                <button onclick="nextTurnEN()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Jogador</button>
             </div>
         </section>
 
-        <!-- ================= ECRÃ: TRIBUNAL DA FOFOCA ================= -->
-        <section id="screen-tribunal" class="screen flex-col w-full h-full items-center justify-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">Tribunal da Fofoca</h2>
-            <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center px-4">Ao contar até 3, apontem para o culpado. O mais votado bebe 1 shot.</p>
-
-            <div class="play-card w-full max-w-sm mb-6">
-                <p id="tr-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Quem é mais provável de...?</p>
+        <!-- VERDADE OU DESAFIO -->
+        <section id="screen-verdade-desafio" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-2xl text-gold mb-6 uppercase tracking-widest text-center">Verdade ou<br>Desafio</h2>
+            
+            <div id="vd-phase-choice" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Na cadeira quente:</p>
+                <p id="vd-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
+                <p class="text-sm text-gray-600 mb-6">Faz a tua escolha.</p>
+                <div class="flex w-full gap-3">
+                    <button onclick="startInputVD('Verdade')" class="btn-gold flex-1 py-4 uppercase tracking-widest text-sm font-bold">Verdade</button>
+                    <button onclick="startInputVD('Desafio')" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-sm font-bold">Desafio</button>
+                </div>
             </div>
 
-            <div class="flex flex-col gap-3 w-full max-w-sm">
-                <button onclick="nextCard('tr', dataTribunal)" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Réu</button>
-                <button onclick="openCustomModal('tr')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Fazer Acusação Própria</button>
+            <div id="vd-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Quem pergunta/desafia:</p>
+                <p id="vd-asker-player" class="font-cinzel text-2xl text-gold font-bold mb-6 uppercase tracking-widest">NOME</p>
+                <p id="vd-type-label" class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-widest"></p>
+                <textarea id="vd-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreve aqui a tua criatividade..."></textarea>
+                <button onclick="submitVD()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Lançar Carta</button>
+            </div>
+
+            <div id="vd-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <div class="play-card w-full mb-6">
+                    <p id="vd-card-type" class="text-xs text-[#D4AF37] uppercase tracking-widest mb-4 font-bold">TIPO</p>
+                    <p id="vd-text" class="font-cinzel text-2xl text-gray-800 leading-relaxed px-2"></p>
+                </div>
+                <button onclick="nextTurnVD()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Passar Turno</button>
             </div>
         </section>
 
-        <!-- ================= ECRÃ: CÁLICE DA VERDADE (AUTO ELENCO) ================= -->
+        <!-- O TRIBUNAL -->
+        <section id="screen-tribunal" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Tribunal</h2>
+            
+            <div id="tr-phase-input" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">O Juiz da vez:</p>
+                <p id="tr-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
+                <p class="text-xs font-bold text-gray-600 mb-2 uppercase tracking-widest self-start">Quem é mais provável de...</p>
+                <textarea id="tr-input" rows="3" class="textarea-elegant mb-6" placeholder="Ex: chegar atrasado ao próprio casamento"></textarea>
+                <button onclick="submitTR()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Ler Acusação</button>
+            </div>
+
+            <div id="tr-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-[0.6rem] text-gray-500 uppercase tracking-[0.1em] text-center px-4 mb-4">Ao contar até 3, apontem para o culpado. O eleito bebe 1 shot.</p>
+                <div class="play-card w-full mb-6">
+                    <p class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Quem é mais provável de <span id="tr-text" class="font-bold text-gold"></span>?</p>
+                </div>
+                <button onclick="nextTurnTR()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Juiz</button>
+            </div>
+        </section>
+
+        <!-- CÁLICE DA VERDADE -->
         <section id="screen-calice" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">O Cálice da Verdade</h2>
-            <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center px-4">Responda a verdade ou sofra a punição em shots.</p>
-
-            <div class="play-card w-full max-w-sm mb-6 bg-[rgba(212,175,55,0.03)] border-[#D4AF37]">
-                <div id="calice-shot-badge" class="shot-badge hidden">2 Shots</div>
-                <p id="calice-player" class="text-xs uppercase tracking-widest text-gray-400 mb-4 hidden">Sua vez:</p>
-                <p id="calice-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">A roda vai escolher a próxima vítima.</p>
+            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Cálice da Verdade</h2>
+            
+            <div id="ca-phase-spin" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center">A roda escolhe a Vítima e quem formula a questão.</p>
+                <button onclick="spinCalice()" class="btn-solid-gold w-64 h-64 rounded-full font-cinzel text-2xl uppercase tracking-widest shadow-2xl flex items-center justify-center border-4 border-[#D4AF37] bg-white text-gold hover:bg-[#D4AF37] hover:text-white transition-all">
+                    Sortear Vítima
+                </button>
             </div>
 
-            <button id="btn-calice-spin" onclick="spinCalice()" class="btn-solid-gold w-full max-w-sm py-4 uppercase tracking-widest text-sm font-bold">
-                Sortear Vítima
-            </button>
-            <div id="calice-actions" class="flex w-full max-w-sm gap-3 hidden mt-3">
-                <button onclick="document.getElementById('btn-calice-spin').click()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs">Já Bebi</button>
-                <button onclick="document.getElementById('btn-calice-spin').click()" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Respondi</button>
+            <div id="ca-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">A Vítima é:</p>
+                <p id="ca-victim" class="font-cinzel text-3xl text-gray-800 font-bold mb-6 uppercase tracking-widest">VÍTIMA</p>
+                <p class="text-xs text-gold uppercase tracking-widest mb-1">Quem faz a pergunta:</p>
+                <p id="ca-asker" class="font-cinzel text-xl text-gold font-bold mb-6 uppercase tracking-widest">NOME</p>
+                <textarea id="ca-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreva a sua pergunta ousada ou confissão..."></textarea>
+                <button onclick="submitCalice()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Servir o Cálice</button>
+            </div>
+
+            <div id="ca-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-[0.6rem] text-gray-500 mb-4 uppercase tracking-[0.1em] text-center">Responda a verdade ou sofra a punição.</p>
+                <div class="play-card w-full mb-6 bg-[rgba(212,175,55,0.03)] border-[#D4AF37]">
+                    <div id="ca-shot-badge" class="shot-badge">2 Shots</div>
+                    <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Para: <span id="ca-victim-display" class="font-bold text-gray-800"></span></p>
+                    <p id="ca-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2"></p>
+                </div>
+                <div class="flex w-full gap-3">
+                    <button onclick="resetCalice()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs">Ocultar Segredo (Bebi)</button>
+                    <button onclick="resetCalice()" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Verdade Revelada</button>
+                </div>
             </div>
         </section>
 
-        <!-- ================= ECRÃ: CAIXA DE PANDORA (ANÓNIMO) ================= -->
+        <!-- CAIXA DE PANDORA -->
         <section id="screen-pandora" class="screen flex-col w-full h-full items-center pt-4">
             <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">Caixa de Pandora</h2>
             
             <div id="pandora-input-phase" class="w-full max-w-sm flex flex-col items-center w-full">
-                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Passe o telemóvel. Cada um escreve uma fofoca, segredo ou pergunta sobre alguém da roda, anonimamente.</p>
-                
+                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Passe o telemóvel à roda. Cada um escreve uma inconfidência, segredo ou confissão anónima. Quando todos escreverem, abram a caixa.</p>
                 <p class="font-cinzel text-gold text-lg mb-2">Segredos Guardados: <span id="pandora-count">0</span></p>
-                
-                <textarea id="pandora-input" rows="4" placeholder="Escreva algo comprometedor anonimamente..." class="w-full border border-gray-200 p-4 font-montserrat text-sm focus:outline-none focus:border-[#D4AF37] resize-none mb-4"></textarea>
-                
-                <button onclick="submitPandora()" class="btn-gold w-full py-3 mb-6 uppercase tracking-widest text-xs font-bold">Guardar na Caixa (Escondido)</button>
-                
+                <textarea id="pandora-input" rows="4" placeholder="Escreva uma pergunta intrigante ou confissão sobre alguém daqui..." class="textarea-elegant mb-4"></textarea>
+                <button onclick="submitPandora()" class="btn-gold w-full py-3 mb-6 uppercase tracking-widest text-xs font-bold">Guardar Escondido</button>
                 <div class="w-full h-px bg-gray-200 my-4"></div>
-
-                <button onclick="startPandoraRead()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">
-                    Abrir a Caixa e Ler
-                </button>
+                <button onclick="startPandoraRead()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Abrir a Caixa e Ler</button>
             </div>
 
             <div id="pandora-read-phase" class="w-full max-w-sm flex flex-col items-center w-full hidden">
-                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Leiam em voz alta. Quem escreveu? Se o grupo não descobrir a autoria, todos bebem 1 shot.</p>
-
+                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Leiam em voz alta. Quem escreveu? Se o grupo não adivinhar, todos bebem 1 shot.</p>
                 <div class="play-card w-full mb-6 border-[#333] bg-[#050505]">
                     <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">Confissão Anónima:</p>
                     <p id="pandora-text" class="font-cinzel text-xl text-white leading-relaxed px-2"></p>
                 </div>
-
-                <button onclick="nextPandora()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">
-                    Próximo Segredo
-                </button>
+                <button onclick="nextPandora()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próxima Confissão</button>
             </div>
         </section>
 
-        <!-- ================= ECRÃ: ROLETA (AUTO ELENCO) ================= -->
+        <!-- ROLETA -->
         <section id="screen-roleta" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-8 uppercase tracking-widest text-center">Roleta de Ações</h2>
+            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">Roleta</h2>
             
-            <div class="play-card w-full max-w-sm mb-6">
-                <p id="roleta-result" class="font-cinzel text-[1.2rem] text-gray-800 leading-relaxed">Gire a roda para cruzar os destinos do elenco.</p>
-            </div>
-
-            <div class="flex flex-col gap-3 w-full max-w-sm">
-                <button onclick="spinRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Girar Roleta</button>
-                <button onclick="openCustomModal('rl')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Criar Punição Manual</button>
-            </div>
-        </section>
-
-        <!-- ================= ECRÃ: MÍMICA ================= -->
-        <section id="screen-mimica" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-4 uppercase tracking-widest text-center">Mímica Adulta</h2>
-            
-            <div class="w-24 h-24 rounded-full border-2 border-[#D4AF37] flex items-center justify-center font-cinzel text-3xl text-gold mx-auto mb-6" id="mimica-timer">60</div>
-
-            <div class="play-card w-full max-w-sm mb-6 py-6 min-h-[150px]">
-                <p id="mimica-word" class="font-cinzel text-2xl font-bold text-gray-800 tracking-wider">Pronto?</p>
-            </div>
-
-            <div class="flex flex-col gap-3 w-full max-w-sm">
-                <div class="flex gap-3">
-                    <button onclick="nextMimica()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs font-bold">Pular</button>
-                    <button id="btn-mimica-start" onclick="toggleMimicaTimer()" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Iniciar</button>
-                </div>
-                <button onclick="openCustomModal('mi')" class="btn-gold w-full py-3 uppercase tracking-widest text-xs">Escrever Mímica</button>
-            </div>
-        </section>
-
-        <!-- ================= ECRÃ: ESPIÃO (AUTO ELENCO) ================= -->
-        <section id="screen-espiao" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">O Espião</h2>
-            <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Descubra quem não sabe onde estamos.</p>
-            
-            <div id="espiao-setup" class="w-full max-w-sm flex flex-col items-center mt-2">
-                <button onclick="startEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold mt-4">
-                    Distribuir Segredos pelo Elenco
+            <div id="rl-phase-spin" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center">Dois destinos cruzados.</p>
+                <button onclick="spinRoleta()" class="btn-solid-gold w-64 h-64 rounded-full font-cinzel text-2xl uppercase tracking-widest shadow-2xl flex items-center justify-center border-4 border-[#D4AF37] bg-white text-gold hover:bg-[#D4AF37] hover:text-white transition-all">
+                    Girar Roleta
                 </button>
             </div>
 
-            <div id="espiao-play" class="w-full max-w-sm flex flex-col items-center hidden mt-2">
+            <div id="rl-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-4">A Roda selecionou:</p>
+                <div class="flex items-center gap-4 mb-6 w-full justify-center">
+                    <p id="rl-p1" class="font-cinzel text-xl text-gold font-bold uppercase tracking-widest">P1</p>
+                    <p class="text-xs text-gray-400">&</p>
+                    <p id="rl-p2" class="font-cinzel text-xl text-gold font-bold uppercase tracking-widest">P2</p>
+                </div>
+                <p class="text-sm font-bold text-gray-800 mb-2 uppercase tracking-widest">O que eles devem fazer?</p>
+                <textarea id="rl-input" rows="3" class="textarea-elegant mb-6" placeholder="A roda decide a ação em conjunto. Escrevam aqui..."></textarea>
+                <button onclick="submitRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Selar Destino</button>
+            </div>
+
+            <div id="rl-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <div class="play-card w-full mb-6">
+                    <p class="font-cinzel text-2xl text-gold font-bold uppercase tracking-widest mb-4"><span id="rl-p1-disp"></span> <br><span class="text-sm text-gray-500">e</span><br> <span id="rl-p2-disp"></span></p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mb-2 font-bold">Devem cumprir:</p>
+                    <p id="rl-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2"></p>
+                </div>
+                <button onclick="resetRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Nova Roleta</button>
+            </div>
+        </section>
+
+        <!-- MÍMICA -->
+        <section id="screen-mimica" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">Mímica</h2>
+            
+            <div id="mi-phase-input" class="w-full max-w-sm flex flex-col items-center">
+                <div class="flex w-full justify-between mb-8 px-2">
+                    <div class="text-center">
+                        <p class="text-[0.55rem] text-gray-400 uppercase tracking-widest mb-1">O Ator:</p>
+                        <p id="mi-actor" class="font-cinzel text-lg text-gold font-bold uppercase tracking-widest">NOME</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[0.55rem] text-gray-400 uppercase tracking-widest mb-1">O Autor:</p>
+                        <p id="mi-author" class="font-cinzel text-lg text-gray-800 font-bold uppercase tracking-widest">NOME</p>
+                    </div>
+                </div>
+                <p class="text-sm font-bold text-gray-800 mb-2 uppercase tracking-widest">Palavra Secreta</p>
+                <input type="text" id="mi-input" class="input-elegant mb-6 text-xl" placeholder="Escreva a palavra (escondido)...">
+                <button onclick="submitMimica()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Guardar e Passar Telemóvel</button>
+            </div>
+
+            <div id="mi-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
+                <p class="text-[0.6rem] text-gray-500 mb-4 uppercase tracking-[0.1em] text-center">O telemóvel deve estar com o <span id="mi-actor-disp" class="font-bold"></span>.</p>
+                <div class="w-24 h-24 rounded-full border-2 border-[#D4AF37] flex items-center justify-center font-cinzel text-3xl text-gold mx-auto mb-6" id="mimica-timer">60</div>
+                <div class="play-card w-full mb-6 py-6 min-h-[150px]">
+                    <p id="mi-word" class="font-cinzel text-3xl font-bold text-gray-800 tracking-wider blur-sm transition-all duration-300">******</p>
+                </div>
+                <div class="flex w-full gap-3">
+                    <button onclick="nextTurnMI()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs font-bold">Desistir / Próximo</button>
+                    <button id="btn-mimica-start" onclick="startTimerMI()" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Ver Palavra & Iniciar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- O ESPIÃO -->
+        <section id="screen-espiao" class="screen flex-col w-full h-full items-center pt-4">
+            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Espião</h2>
+            
+            <div id="espiao-phase-input" class="w-full max-w-sm flex flex-col items-center">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">O Mestre (Não joga esta ronda):</p>
+                <p id="es-master" class="font-cinzel text-3xl text-gold font-bold mb-6 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
+                <p class="text-[0.6rem] text-gray-500 uppercase tracking-[0.1em] text-center px-2 mb-4">Mestre, escreve o Local Secreto (ex: Praia, Motel, Casamento). Os outros vão jogar para descobrir o Espião.</p>
+                <input type="text" id="es-input" class="input-elegant mb-6 text-xl" placeholder="Local Secreto...">
+                <button onclick="startEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Distribuir Identidades</button>
+            </div>
+
+            <div id="espiao-phase-play" class="w-full max-w-sm flex flex-col items-center hidden mt-2">
                 <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest mb-4 font-bold text-[#D4AF37] text-center">
                     Passe o telemóvel para: <br><span id="espiao-current-player" class="text-2xl text-gray-800 mt-1 block">NOME</span>
                 </p>
-                
                 <div class="play-card w-full mb-6 cursor-pointer border-[#D4AF37]" onclick="toggleEspiaoReveal()">
                     <div id="espiao-hidden" class="w-full h-full flex flex-col items-center justify-center">
-                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest border border-gray-300 px-6 py-3 rounded">Toque para revelar o segredo</p>
+                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest border border-gray-300 px-6 py-3 rounded">Toque para revelar</p>
                     </div>
                     <div id="espiao-revealed" class="w-full h-full flex flex-col items-center justify-center hidden">
                         <p class="text-[0.65rem] text-gray-500 uppercase mb-2 tracking-widest">A Localização é</p>
@@ -433,7 +498,6 @@
                         <p class="text-[0.6rem] text-red-400 font-bold uppercase mt-8 border-b border-red-400 pb-1">Toque novamente para esconder</p>
                     </div>
                 </div>
-
                 <button id="btn-espiao-next" onclick="nextEspiaoPlayer()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold hidden">
                     Escondi. Próximo Jogador.
                 </button>
@@ -441,20 +505,6 @@
         </section>
 
     </main>
-
-    <!-- Modal de Criação Personalizada -->
-    <div id="customModal" class="fixed inset-0 modal-overlay z-50 flex justify-center items-center hidden opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-white border border-[#D4AF37] p-6 w-full max-w-sm shadow-2xl relative">
-            <h3 class="font-cinzel text-lg text-gold mb-4 text-center">Criar Carta</h3>
-            <textarea id="customInputText" rows="3" class="w-full border-b border-gray-300 p-2 font-montserrat text-sm focus:outline-none focus:border-[#D4AF37] resize-none mb-6" placeholder="Escreva aqui a sua pergunta ou punição..."></textarea>
-            
-            <div class="flex gap-3">
-                <button onclick="closeCustomModal()" class="btn-ghost flex-1 py-2 uppercase tracking-widest text-[0.65rem] font-bold">Cancelar</button>
-                <button onclick="playCustomCard()" class="btn-solid-gold flex-1 py-2 uppercase tracking-widest text-[0.65rem] font-bold">Jogar Agora</button>
-            </div>
-            <input type="hidden" id="customTargetGame" value="">
-        </div>
-    </div>
 
     <!-- Modal de Aviso -->
     <div id="alertModal" class="fixed inset-0 modal-overlay z-[60] flex justify-center items-center hidden opacity-0 transition-opacity duration-300 px-4">
@@ -465,105 +515,16 @@
     </div>
 
     <script>
-        // ================= BANCOS DE DADOS (EXTREMOS & EXCLUSIVOS) =================
-        const dataEuNunca = [
-            "Eu nunca beijei alguém que está nesta roda.", "Eu nunca menti sobre a minha idade para conseguir algo.",
-            "Eu nunca mandei uma nude.", "Eu nunca recebi uma nude que não pedi.",
-            "Eu nunca tive um sonho erótico com o parceiro(a) de um amigo.", "Eu nunca fui expulso de um bar ou discoteca.",
-            "Eu nunca nadei nu numa piscina ou praia.", "Eu nunca fingi um orgasmo.",
-            "Eu nunca beijei mais de 3 pessoas na mesma noite.", "Eu nunca mexi no telemóvel de um parceiro às escondidas.",
-            "Eu nunca me envolvi com um colega de trabalho ou chefe.", "Eu nunca traí e saí ileso.",
-            "Eu nunca fui o 'outro' ou a 'outra'.", "Eu nunca beijei o/a ex de um(a) amigo(a).",
-            "Eu nunca fui apanhado a fazer sexo.", "Eu nunca tive de fugir de uma casa de madrugada.",
-            "Eu nunca me apaixonei por duas pessoas ao mesmo tempo.", "Eu nunca disse 'amo-te' só para ir para a cama.",
-            "Eu nunca pesquisei o Instagram da atual do meu ex.", "Eu nunca criei um perfil falso (fake) nas redes sociais.",
-            "Eu nunca dei um beijo triplo.", "Eu nunca fiquei com alguém apenas por vingança.",
-            "Eu nunca fiz ghosting a alguém que gostava muito de mim.", "Eu nunca me envolvi com alguém 10 anos mais velho/novo.",
-            "Eu nunca adormeci durante o sexo.", "Eu nunca vomitei depois de beber demais numa festa.",
-            "Eu nunca fugi de uma conta num restaurante.", "Eu nunca fiz sexo num local público (carro não conta).",
-            "Eu nunca tive ciúmes de um irmão/irmã.", "Eu nunca duvidei da minha orientação sexual."
-        ];
-
-        const dataVerdade = [
-            "Qual é o seu maior segredo que ninguém nesta roda sabe?", "Se tivesse que escolher alguém desta roda para um menage, quem seria?",
-            "Qual foi a maior mentira que já contou a um parceiro(a)?", "Quem é a pessoa mais atraente nesta sala?",
-            "Qual foi o lugar mais inapropriado onde já fez amor?", "Já traiu alguém? Se sim, conte os detalhes.",
-            "O que você mais odeia na pessoa à sua direita?", "Qual foi a pior experiência sexual da sua vida?",
-            "Com quem desta roda você nunca se envolveria em hipótese alguma?", "Qual é o seu fetiche mais estranho?",
-            "Já enviou uma mensagem picante para a pessoa errada? Como foi?", "Qual foi a pessoa mais famosa com quem já esteve?",
-            "Quem desta roda tem o pior gosto para relacionamentos?", "Alguma vez julgou alguém desta roda em segredo? Porquê?",
-            "Qual foi a coisa mais humilhante que fez por amor?", "Tem alguma fantasia sexual com alguém que está aqui hoje?",
-            "Qual foi o motivo mais ridículo pelo qual acabou uma relação?", "Já fingiu gostar de alguém só pelo dinheiro/estatuto?",
-            "Qual foi a última vez que chorou por causa de sexo?", "Quem daqui acha que guarda o maior segredo obscuro?"
-        ];
-
-        const dataDesafio = [
-            "Beba um shot do pescoço ou barriga de alguém desta roda à sua escolha.", "Deixe a pessoa à sua esquerda ler a sua última mensagem de WhatsApp em voz alta.",
-            "Dê um beijo no pescoço (com mordida leve) da pessoa à sua direita.", "Tire uma peça de roupa. Sem negociar.",
-            "Ligue para a última pessoa com quem falou e gema ao telemóvel por 10 segundos.", "Faça uma dança de colo (lap dance) à pessoa à sua frente.",
-            "Deixe o grupo escolher uma foto sua no telemóvel para publicar no Instagram Stories agora.", "Dê um beijo de cinema na pessoa que a roda escolher.",
-            "Beba 2 shots seguidos sem fazer careta.", "Vá até à rua e grite 'Eu amo sexo' a plenos pulmões.",
-            "Troque de t-shirt/camisa com a pessoa à sua esquerda.", "Sente-se no colo de quem o grupo decidir durante as próximas 2 rodadas.",
-            "Faça uma massagem sensual aos ombros de quem estiver à sua direita por 1 minuto.", "Coma algo de forma provocante enquanto mantém contacto visual com alguém.",
-            "Mostre a sua última pesquisa no Google ou beba 3 shots.", "Simule um orgasmo perante toda a roda.",
-            "Simule como você flirta com alguém num bar usando a pessoa à sua frente.", "Deixe a pessoa mais velha da roda morder-lhe a orelha."
-        ];
-
-        const dataTribunal = [
-            "...casar por puro interesse financeiro.", "...ter um caso secreto com o chefe da empresa.",
-            "...ser preso(a) numa despedida de solteiro por atentado ao pudor.", "...fugir do próprio casamento no dia da cerimónia.",
-            "...gastar todo o salário num único fim de semana em bebidas.", "...fazer um barraco monumental num restaurante chique.",
-            "...acordar ao lado de alguém e não fazer ideia do nome da pessoa.", "...viver uma vida dupla com duas famílias.",
-            "...roubar o/a namorado(a) de um amigo chegado.", "...aparecer num reality show e ser o vilão.",
-            "...fazer uma cirurgia plástica bizarra e arrepender-se.", "...sobreviver a um apocalipse zombie traindo toda a gente.",
-            "...vender fotos dos pés na internet.", "...ter um sugar daddy/mommy em segredo.",
-            "...ser apanhado a roubar num supermercado.", "...chorar para não levar uma multa de trânsito.",
-            "...arranjar uma desculpa esfarrapada para não ir trabalhar por ressaca.", "...esconder o corpo se um amigo matasse alguém.",
-            "...casar-se em Las Vegas com um desconhecido."
-        ];
-
-        const dataCalice = [
-            "Qual é a fofoca mais pesada que sabes de alguém que está nesta sala?",
-            "Quem desta sala seria a pior pessoa para namorar e porquê?",
-            "Qual o pior defeito da pessoa que está exatamente à tua frente?",
-            "De quem nesta roda tu sentes inveja secretamente?",
-            "Se fosses obrigado(a) a cortar relações com alguém desta roda para sempre, quem seria?",
-            "Classifica as 3 pessoas mais bonitas da roda, do 1º ao 3º lugar.",
-            "Quem daqui tem a pior reputação na cama, segundo o que já ouviste?",
-            "Qual a atitude mais falsa que já viste alguém desta roda tomar?",
-            "Se pudesses ler as mensagens de WhatsApp de uma pessoa aqui sem ela saber, de quem seria?",
-            "Revela um segredo sobre ti que mudaria a forma como estas pessoas te veem."
-        ];
-
-        const dataRoletaAcoes = [
-            "dar um beijo de 5 segundos na boca de", "beber 2 shots de braços cruzados com",
-            "sentar no colo por 1 rodada inteira de", "fazer uma massagem provocante nos ombros de",
-            "confessar um segredo íntimo ao ouvido de", "trocar uma peça de roupa (agora!) com",
-            "dar um beijo no pescoço de", "ser o escravo pessoal (buscar bebidas, etc) por 10 min de",
-            "fazer uma declaração de amor dramática a", "partilhar uma bebida do mesmo copo com",
-            "dançar de forma sensual para", "dar um estalo (leve e consensual) na cara de",
-            "revelar a primeira impressão que teve de", "ficar de mãos dadas durante 3 rodadas com"
-        ];
-
-        const dataMimica = [
-            "Algemas de Pelúcia", "Dança do Varão (Pole Dance)", "Ressaca de Tequila", "Fugir pela janela depois do sexo", 
-            "Mensagem de Ex às 3 da manhã", "Motel Barato", "Tirar uma Nude", "Testar positivo no bafômetro",
-            "Encontro às cegas desastroso", "Fingir orgasmo", "Ser apanhado pelos pais", "Preservativo rasgado",
-            "Vibrador", "Fazer um chupão", "Depilação íntima dolorosa", "Vomitar no táxi",
-            "Beijo de língua péssimo", "Tirar sutiã com uma mão", "Chorar no banho", "Espiar pelo buraco da fechadura"
-        ];
-
-        const dataEspiaoLocais = [
-            "Motel Luxuoso", "Discoteca Clandestina", "Iate Privado no Mónaco", "Quarto Escuro", 
-            "Despedida de Solteiro", "Casamento Real", "Casino VIP", "Cabine de Prova da Zara",
-            "Casa de Banho do Avião", "Sede de um Culto", "Bastidores de um Desfile", "Masmorra BDSM",
-            "Praia de Nudismo", "Clínica de Reabilitação", "Set de Filmagens Adultas"
-        ];
-
-        // ================= LÓGICA DO SISTEMA (ELENCO OBRIGATÓRIO) =================
+        // ================= ESTADO GLOBAL =================
         let globalPlayers = [];
-        let pandoraSecrets = [];
+        
+        let enIndex = 0;
+        let vdIndex = 0;
+        let trIndex = 0;
+        let miIndex = 0;
+        let esMasterIndex = 0;
 
+        // ================= SISTEMA CORE =================
         function addPlayer() {
             const input = document.getElementById('setup-input');
             const name = input.value.trim();
@@ -583,7 +544,6 @@
             const container = document.getElementById('setup-list');
             const countEl = document.getElementById('player-count');
             const btnEnter = document.getElementById('btn-enter-salon');
-
             countEl.innerText = globalPlayers.length;
 
             if (globalPlayers.length === 0) {
@@ -596,7 +556,6 @@
                 ).join('');
             }
 
-            // Habilitar a entrada no salão apenas se tiver 3 ou mais
             if (globalPlayers.length >= 3) {
                 btnEnter.disabled = false;
                 countEl.classList.add('text-green-500');
@@ -610,10 +569,10 @@
 
         function enterSalon() {
             if (globalPlayers.length < 3) return;
+            globalPlayers.sort(() => Math.random() - 0.5);
+            
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-menu').classList.add('active');
-            
-            // Ativa o Header e esconde o botão de voltar nele (estamos no menu principal)
             document.getElementById('main-header').classList.remove('hidden');
             document.getElementById('btnBack').classList.add('hidden');
         }
@@ -622,7 +581,6 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-setup').classList.add('active');
             document.getElementById('main-header').classList.add('hidden');
-            
             if(isEditing && globalPlayers.length >= 3) {
                 document.getElementById('btn-return-menu').classList.remove('hidden');
                 document.getElementById('btn-enter-salon').innerText = "Guardar Alterações";
@@ -647,47 +605,19 @@
             document.getElementById(`screen-${gameId}`).classList.add('active');
             document.getElementById('btnBack').classList.remove('hidden');
             
-            if(gameId === 'mimica') initMimica();
-            if(gameId === 'pandora') initPandora();
+            if(gameId === 'eu-nunca') initEN();
+            if(gameId === 'verdade-desafio') initVD();
+            if(gameId === 'tribunal') initTR();
             if(gameId === 'calice') resetCalice();
-            if(gameId === 'espiao') resetEspiaoUI();
+            if(gameId === 'pandora') initPandora();
+            if(gameId === 'roleta') resetRoleta();
+            if(gameId === 'mimica') initMI();
+            if(gameId === 'espiao') initEspiao();
         }
 
-        function getRandom(array) {
-            return array[Math.floor(Math.random() * array.length)];
-        }
-
-        // ================= MODAIS & UTILIDADES =================
-        function openCustomModal(gamePrefix) {
-            document.getElementById('customTargetGame').value = gamePrefix;
-            document.getElementById('customInputText').value = '';
-            const modal = document.getElementById('customModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-
-        function closeCustomModal() {
-            const modal = document.getElementById('customModal');
-            modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function playCustomCard() {
-            const text = document.getElementById('customInputText').value.trim();
-            if (!text) return;
-            const target = document.getElementById('customTargetGame').value;
-            
-            const el = document.getElementById(`${target}-text`) || document.getElementById('mimica-word');
-            
-            if (target === 'en') el.innerText = `Eu nunca... ${text}`;
-            else if (target === 'vd') el.innerHTML = `<span class="text-[0.65rem] text-[#D4AF37] font-bold uppercase tracking-widest block mb-2">Punição Exclusiva</span>${text}`;
-            else if (target === 'tr') el.innerText = `Quem é mais provável de ${text}?`;
-            else if (target === 'rl') el.innerHTML = `<span class="text-gold font-bold text-xl uppercase tracking-widest">Ação Manual:</span><br><br>${text}`;
-            else if (target === 'mi') el.innerText = text;
-
-            closeCustomModal();
-            el.style.opacity = 0;
-            setTimeout(() => el.style.opacity = 1, 100);
+        function getAnotherPlayer(exclude) {
+            let options = globalPlayers.filter(p => p !== exclude);
+            return options[Math.floor(Math.random() * options.length)];
         }
 
         function showAlert(msg) {
@@ -702,67 +632,107 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // ================= LÓGICA DE CARTAS (EU NUNCA / TRIBUNAL / VD) =================
-        function nextCard(prefix, array) {
-            const el = document.getElementById(`${prefix}-text`);
-            el.style.opacity = 0;
-            setTimeout(() => {
-                let txt = getRandom(array);
-                if (prefix === 'en') txt = `Eu nunca... ${txt.replace('Eu nunca ', '')}`;
-                if (prefix === 'tr') txt = `Quem é mais provável de ${txt.replace('...', '')}?`;
-                el.innerText = txt;
-                el.style.opacity = 1;
-            }, 300);
+        // ================= EU NUNCA =================
+        function initEN() {
+            document.getElementById('en-phase-input').classList.remove('hidden');
+            document.getElementById('en-phase-play').classList.add('hidden');
+            document.getElementById('en-turn-player').innerText = globalPlayers[enIndex];
+            document.getElementById('en-input').value = '';
+        }
+        function submitEN() {
+            const text = document.getElementById('en-input').value.trim();
+            if(!text) { showAlert("Escreve o teu pecado primeiro!"); return; }
+            document.getElementById('en-text').innerText = text;
+            document.getElementById('en-phase-input').classList.add('hidden');
+            document.getElementById('en-phase-play').classList.remove('hidden');
+        }
+        function nextTurnEN() {
+            enIndex = (enIndex + 1) % globalPlayers.length;
+            initEN();
         }
 
-        function nextCardVD(type) {
-            const el = document.getElementById('vd-text');
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.innerHTML = type === 'verdade' 
-                    ? `<span class="text-[0.65rem] text-gray-500 uppercase tracking-widest block mb-2 font-bold">A Verdade</span>${getRandom(dataVerdade)}`
-                    : `<span class="text-[0.65rem] text-[#D4AF37] uppercase tracking-widest block mb-2 font-bold">O Desafio</span>${getRandom(dataDesafio)}`;
-                el.style.opacity = 1;
-            }, 300);
+        // ================= VERDADE OU DESAFIO =================
+        let vdCurrentTarget = '';
+        let vdCurrentType = '';
+        function initVD() {
+            vdCurrentTarget = globalPlayers[vdIndex];
+            document.getElementById('vd-phase-choice').classList.remove('hidden');
+            document.getElementById('vd-phase-input').classList.add('hidden');
+            document.getElementById('vd-phase-play').classList.add('hidden');
+            document.getElementById('vd-turn-player').innerText = vdCurrentTarget;
+            document.getElementById('vd-input').value = '';
+        }
+        function startInputVD(type) {
+            vdCurrentType = type;
+            const asker = getAnotherPlayer(vdCurrentTarget);
+            document.getElementById('vd-phase-choice').classList.add('hidden');
+            document.getElementById('vd-phase-input').classList.remove('hidden');
+            document.getElementById('vd-asker-player').innerText = asker;
+            document.getElementById('vd-type-label').innerText = `Inventa um(a) ${type} para o(a) ${vdCurrentTarget}:`;
+        }
+        function submitVD() {
+            const text = document.getElementById('vd-input').value.trim();
+            if(!text) { showAlert("Escreve algo primeiro!"); return; }
+            document.getElementById('vd-card-type').innerText = vdCurrentType;
+            document.getElementById('vd-text').innerText = text;
+            document.getElementById('vd-phase-input').classList.add('hidden');
+            document.getElementById('vd-phase-play').classList.remove('hidden');
+        }
+        function nextTurnVD() {
+            vdIndex = (vdIndex + 1) % globalPlayers.length;
+            initVD();
         }
 
-        // ================= CÁLICE DA VERDADE (COM ELENCO GLOBAL) =================
+        // ================= O TRIBUNAL =================
+        function initTR() {
+            document.getElementById('tr-phase-input').classList.remove('hidden');
+            document.getElementById('tr-phase-play').classList.add('hidden');
+            document.getElementById('tr-turn-player').innerText = globalPlayers[trIndex];
+            document.getElementById('tr-input').value = '';
+        }
+        function submitTR() {
+            const text = document.getElementById('tr-input').value.trim();
+            if(!text) { showAlert("A acusação não pode estar vazia!"); return; }
+            document.getElementById('tr-text').innerText = text;
+            document.getElementById('tr-phase-input').classList.add('hidden');
+            document.getElementById('tr-phase-play').classList.remove('hidden');
+        }
+        function nextTurnTR() {
+            trIndex = (trIndex + 1) % globalPlayers.length;
+            initTR();
+        }
+
+        // ================= CÁLICE DA VERDADE =================
         function resetCalice() {
-            document.getElementById('calice-text').innerText = "A roda vai escolher a próxima vítima.";
-            document.getElementById('calice-player').classList.add('hidden');
-            document.getElementById('calice-shot-badge').classList.add('hidden');
-            document.getElementById('calice-actions').classList.add('hidden');
-            document.getElementById('btn-calice-spin').classList.remove('hidden');
+            document.getElementById('ca-phase-spin').classList.remove('hidden');
+            document.getElementById('ca-phase-input').classList.add('hidden');
+            document.getElementById('ca-phase-play').classList.add('hidden');
+            document.getElementById('ca-input').value = '';
         }
-
         function spinCalice() {
-            const player = getRandom(globalPlayers);
-            const question = getRandom(dataCalice);
-            const shots = Math.floor(Math.random() * 3) + 1; // 1 a 3 shots
-
-            document.getElementById('btn-calice-spin').classList.add('hidden');
+            const victim = globalPlayers[Math.floor(Math.random() * globalPlayers.length)];
+            const asker = getAnotherPlayer(victim);
             
-            const elText = document.getElementById('calice-text');
-            const elPlayer = document.getElementById('calice-player');
-            const elBadge = document.getElementById('calice-shot-badge');
-            const elActions = document.getElementById('calice-actions');
+            document.getElementById('ca-phase-spin').classList.add('hidden');
+            document.getElementById('ca-phase-input').classList.remove('hidden');
+            document.getElementById('ca-victim').innerText = victim;
+            document.getElementById('ca-asker').innerText = asker;
+        }
+        function submitCalice() {
+            const text = document.getElementById('ca-input').value.trim();
+            if(!text) { showAlert("A pergunta não pode estar vazia!"); return; }
+            
+            const shots = Math.floor(Math.random() * 2) + 1; // 1 a 2 shots aleatórios
+            document.getElementById('ca-shot-badge').innerText = `${shots} Shot${shots > 1 ? 's' : ''}`;
+            document.getElementById('ca-victim-display').innerText = document.getElementById('ca-victim').innerText;
+            document.getElementById('ca-text').innerText = text;
 
-            elText.style.opacity = 0;
-            setTimeout(() => {
-                elPlayer.innerHTML = `Sua vez: <span class="text-gold font-bold text-xl ml-2 uppercase tracking-widest">${player}</span>`;
-                elPlayer.classList.remove('hidden');
-                
-                elBadge.innerText = `${shots} Shot${shots > 1 ? 's' : ''}`;
-                elBadge.classList.remove('hidden');
-
-                elText.innerText = question;
-                elText.style.opacity = 1;
-
-                elActions.classList.remove('hidden');
-            }, 600);
+            document.getElementById('ca-phase-input').classList.add('hidden');
+            document.getElementById('ca-phase-play').classList.remove('hidden');
         }
 
         // ================= CAIXA DE PANDORA =================
+        let pandoraSecrets = [];
         function initPandora() {
             pandoraSecrets = [];
             document.getElementById('pandora-count').innerText = 0;
@@ -770,7 +740,6 @@
             document.getElementById('pandora-read-phase').classList.add('hidden');
             document.getElementById('pandora-input').value = '';
         }
-
         function submitPandora() {
             const input = document.getElementById('pandora-input');
             const secret = input.value.trim();
@@ -778,140 +747,153 @@
                 pandoraSecrets.push(secret);
                 input.value = '';
                 document.getElementById('pandora-count').innerText = pandoraSecrets.length;
-                
                 const btn = event.target;
                 const originalText = btn.innerText;
                 btn.innerText = "Guardado!";
-                btn.style.borderColor = "#22c55e";
-                btn.style.color = "#22c55e";
+                btn.style.borderColor = "#22c55e"; btn.style.color = "#22c55e";
                 setTimeout(() => {
                     btn.innerText = originalText;
-                    btn.style.borderColor = "var(--gold-main)";
-                    btn.style.color = "var(--gold-dark)";
+                    btn.style.borderColor = "var(--gold-main)"; btn.style.color = "var(--gold-dark)";
                 }, 1000);
             }
         }
-
         function startPandoraRead() {
-            if (pandoraSecrets.length === 0) {
-                showAlert("Ninguém escreveu nenhum segredo. A caixa está vazia.");
-                return;
-            }
+            if (pandoraSecrets.length === 0) { showAlert("A caixa está vazia."); return; }
             pandoraSecrets.sort(() => Math.random() - 0.5);
             document.getElementById('pandora-input-phase').classList.add('hidden');
             document.getElementById('pandora-read-phase').classList.remove('hidden');
             nextPandora();
         }
-
         function nextPandora() {
             const el = document.getElementById('pandora-text');
             if (pandoraSecrets.length === 0) {
-                el.innerHTML = "<span class='text-gray-500 text-sm'>A caixa está vazia. Todos os segredos foram revelados.</span>";
+                el.innerHTML = "<span class='text-gray-500 text-sm'>A caixa está vazia.</span>";
                 return;
             }
             el.style.opacity = 0;
             setTimeout(() => {
-                const secret = pandoraSecrets.pop();
-                el.innerText = `"${secret}"`;
+                el.innerText = `"${pandoraSecrets.pop()}"`;
                 el.style.opacity = 1;
             }, 300);
         }
 
-        // ================= ROLETA (COM ELENCO GLOBAL) =================
+        // ================= ROLETA =================
+        function resetRoleta() {
+            document.getElementById('rl-phase-spin').classList.remove('hidden');
+            document.getElementById('rl-phase-input').classList.add('hidden');
+            document.getElementById('rl-phase-play').classList.add('hidden');
+            document.getElementById('rl-input').value = '';
+        }
         function spinRoleta() {
-            const el = document.getElementById('roleta-result');
-            el.innerHTML = `<span class="text-gray-400 text-sm uppercase tracking-widest font-bold">Cruzando destinos...</span>`;
+            let p1 = globalPlayers[Math.floor(Math.random() * globalPlayers.length)];
+            let p2 = getAnotherPlayer(p1);
             
-            setTimeout(() => {
-                let p1 = getRandom(globalPlayers);
-                let p2 = getRandom(globalPlayers);
-                while(p1 === p2) p2 = getRandom(globalPlayers); 
-                
-                const acao = getRandom(dataRoletaAcoes);
-                el.innerHTML = `<span class="text-gold font-bold text-2xl uppercase tracking-widest">${p1}</span><br><br><span class="text-xs text-gray-500 uppercase tracking-widest block mb-2">deve</span>${acao}<br><br><span class="text-gold font-bold text-2xl uppercase tracking-widest">${p2}</span>.`;
-            }, 1200);
+            document.getElementById('rl-phase-spin').classList.add('hidden');
+            document.getElementById('rl-phase-input').classList.remove('hidden');
+            document.getElementById('rl-p1').innerText = p1;
+            document.getElementById('rl-p2').innerText = p2;
+        }
+        function submitRoleta() {
+            const text = document.getElementById('rl-input').value.trim();
+            if(!text) { showAlert("Escrevam o que eles devem fazer!"); return; }
+            
+            document.getElementById('rl-p1-disp').innerText = document.getElementById('rl-p1').innerText;
+            document.getElementById('rl-p2-disp').innerText = document.getElementById('rl-p2').innerText;
+            document.getElementById('rl-text').innerText = text;
+
+            document.getElementById('rl-phase-input').classList.add('hidden');
+            document.getElementById('rl-phase-play').classList.remove('hidden');
         }
 
         // ================= MÍMICA =================
         let mimicaTimer = 60;
         let mimicaInterval;
         let isMimicaRunning = false;
-
-        function initMimica() {
-            document.getElementById('mimica-timer').innerText = "60";
-            document.getElementById('mimica-word').innerText = "Pronto?";
-            document.getElementById('btn-mimica-start').innerText = "Iniciar";
-            isMimicaRunning = false;
+        
+        function initMI() {
+            const actor = globalPlayers[miIndex];
+            const author = getAnotherPlayer(actor);
+            
+            document.getElementById('mi-phase-input').classList.remove('hidden');
+            document.getElementById('mi-phase-play').classList.add('hidden');
+            document.getElementById('mi-actor').innerText = actor;
+            document.getElementById('mi-author').innerText = author;
+            document.getElementById('mi-input').value = '';
+            
             clearInterval(mimicaInterval);
+            isMimicaRunning = false;
+        }
+        function submitMimica() {
+            const text = document.getElementById('mi-input').value.trim();
+            if(!text) { showAlert("O autor tem que escrever a palavra secreta!"); return; }
+            
+            document.getElementById('mi-actor-disp').innerText = document.getElementById('mi-actor').innerText;
+            document.getElementById('mi-word').innerText = text;
+            document.getElementById('mi-word').classList.add('blur-sm');
+            document.getElementById('mimica-timer').innerText = "60";
+            document.getElementById('btn-mimica-start').innerText = "Ver Palavra & Iniciar";
+            
+            document.getElementById('mi-phase-input').classList.add('hidden');
+            document.getElementById('mi-phase-play').classList.remove('hidden');
+        }
+        function startTimerMI() {
+            if(isMimicaRunning) return; 
+            
+            document.getElementById('mi-word').classList.remove('blur-sm');
+            document.getElementById('btn-mimica-start').innerText = "A decorrer...";
+            
+            isMimicaRunning = true;
+            mimicaTimer = 60;
+            mimicaInterval = setInterval(() => {
+                mimicaTimer--;
+                document.getElementById('mimica-timer').innerText = mimicaTimer;
+                if(mimicaTimer <= 0) {
+                    clearInterval(mimicaInterval);
+                    isMimicaRunning = false;
+                    document.getElementById('mi-word').innerText = "TEMPO!";
+                    document.getElementById('btn-mimica-start').innerText = "Tempo Esgotado";
+                }
+            }, 1000);
+        }
+        function nextTurnMI() {
+            miIndex = (miIndex + 1) % globalPlayers.length;
+            initMI();
         }
 
-        function toggleMimicaTimer() {
-            if(isMimicaRunning) {
-                clearInterval(mimicaInterval);
-                document.getElementById('btn-mimica-start').innerText = "Retomar";
-                isMimicaRunning = false;
-            } else {
-                if(document.getElementById('mimica-word').innerText === "Pronto?") nextMimica();
-                
-                document.getElementById('btn-mimica-start').innerText = "Pausar";
-                isMimicaRunning = true;
-                mimicaInterval = setInterval(() => {
-                    mimicaTimer--;
-                    document.getElementById('mimica-timer').innerText = mimicaTimer;
-                    if(mimicaTimer <= 0) {
-                        clearInterval(mimicaInterval);
-                        isMimicaRunning = false;
-                        document.getElementById('mimica-word').innerText = "TEMPO ESGOTADO!";
-                        document.getElementById('btn-mimica-start').innerText = "Novo Turno";
-                        mimicaTimer = 60;
-                    }
-                }, 1000);
-            }
-        }
-
-        function nextMimica() {
-            const el = document.getElementById('mimica-word');
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.innerText = getRandom(dataMimica);
-                el.style.opacity = 1;
-            }, 200);
-        }
-
-        // ================= O ESPIÃO (COM ELENCO GLOBAL) =================
+        // ================= O ESPIÃO =================
         let espiaoRoles = [];
         let espiaoCurrentIndex = 0;
-        let shuffledPlayers = [];
+        let esShuffledPlayers = [];
 
-        function resetEspiaoUI() {
-            document.getElementById('espiao-setup').classList.remove('hidden');
-            document.getElementById('espiao-play').classList.add('hidden');
+        function initEspiao() {
+            document.getElementById('espiao-phase-input').classList.remove('hidden');
+            document.getElementById('espiao-phase-play').classList.add('hidden');
+            document.getElementById('es-master').innerText = globalPlayers[esMasterIndex];
+            document.getElementById('es-input').value = '';
         }
 
         function startEspiao() {
-            const count = globalPlayers.length;
-            const local = getRandom(dataEspiaoLocais);
+            const master = globalPlayers[esMasterIndex];
+            const local = document.getElementById('es-input').value.trim();
+            if(!local) { showAlert("Mestre, escreva o local secreto primeiro!"); return; }
+
+            esShuffledPlayers = globalPlayers.filter(p => p !== master).sort(() => Math.random() - 0.5);
+            const count = esShuffledPlayers.length;
             
             espiaoRoles = Array(count).fill(local);
             espiaoRoles[Math.floor(Math.random() * count)] = "Você é o ESPIÃO!";
             
-            // Ordem aleatória de quem recebe o telemóvel
-            shuffledPlayers = [...globalPlayers].sort(() => Math.random() - 0.5);
             espiaoCurrentIndex = 0;
             
-            document.getElementById('espiao-setup').classList.add('hidden');
-            document.getElementById('espiao-play').classList.remove('hidden');
+            document.getElementById('espiao-phase-input').classList.add('hidden');
+            document.getElementById('espiao-phase-play').classList.remove('hidden');
             updateEspiaoScreen();
         }
 
         function updateEspiaoScreen() {
-            document.getElementById('espiao-current-player').innerText = shuffledPlayers[espiaoCurrentIndex];
-            
-            const hiddenLayer = document.getElementById('espiao-hidden');
-            const revealedLayer = document.getElementById('espiao-revealed');
-            
-            hiddenLayer.classList.remove('hidden');
-            revealedLayer.classList.add('hidden');
+            document.getElementById('espiao-current-player').innerText = esShuffledPlayers[espiaoCurrentIndex];
+            document.getElementById('espiao-hidden').classList.remove('hidden');
+            document.getElementById('espiao-revealed').classList.add('hidden');
             document.getElementById('btn-espiao-next').classList.add('hidden');
         }
 
@@ -920,7 +902,6 @@
             const revealed = document.getElementById('espiao-revealed');
             
             if(!hidden.classList.contains('hidden')) {
-                // Ao clicar para Revelar
                 hidden.classList.add('hidden');
                 revealed.classList.remove('hidden');
                 
@@ -933,7 +914,6 @@
 
                 document.getElementById('btn-espiao-next').classList.remove('hidden');
             } else {
-                // Ao clicar para Esconder de novo
                 hidden.classList.remove('hidden');
                 revealed.classList.add('hidden');
             }
@@ -941,19 +921,20 @@
 
         function nextEspiaoPlayer() {
             const revealed = document.getElementById('espiao-revealed');
-            // Só deixa passar se o segredo estiver escondido (por segurança)
             if(!revealed.classList.contains('hidden')) {
-                showAlert("Por favor, toque na carta para esconder o segredo antes de passar o telemóvel!");
+                showAlert("Toque na carta para esconder a palavra antes de passar!");
                 return;
             }
 
             espiaoCurrentIndex++;
             if(espiaoCurrentIndex >= espiaoRoles.length) {
-                document.getElementById('espiao-play').innerHTML = `
+                esMasterIndex = (esMasterIndex + 1) % globalPlayers.length;
+                
+                document.getElementById('espiao-phase-play').innerHTML = `
                     <div class="text-center py-10 w-full">
                         <h3 class="font-cinzel text-2xl text-gold mb-4">A Caça Começou</h3>
-                        <p class="text-[0.65rem] text-gray-600 mb-8 px-4 uppercase tracking-widest font-bold">Todos viram o seu papel. Façam perguntas subtis uns aos outros. Se o grupo descobrir o espião, o espião bebe 2 shots. Se o espião adivinhar o local, o grupo bebe.</p>
-                        <button onclick="openGame('espiao')" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Jogar Nova Partida</button>
+                        <p class="text-[0.65rem] text-gray-600 mb-8 px-4 uppercase tracking-widest font-bold">Façam perguntas sobre o local uns aos outros. Se o grupo descobrir o espião, o espião bebe 2 shots. Se o espião adivinhar o local, o grupo bebe.</p>
+                        <button onclick="initEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Nova Partida (Novo Mestre)</button>
                     </div>
                 `;
             } else {
@@ -961,9 +942,7 @@
             }
         }
 
-        // Renderiza lista vazia no arranque (esperando que o user adicione)
         renderPlayers();
-
     </script>
 </body>
 </html>
