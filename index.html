@@ -1,948 +1,348 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Libertiné - Salão de Jogos</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribe Pro - Gerador de Atas</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-    
+    <!-- Configuração de fontes do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Times New Roman"', 'Times', 'serif'],
+                        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --gold-light: #FBEAAB;
-            --gold-main: #D4AF37;
-            --gold-dark: #A68A27;
-            --bg-light: #FDFDFD;
-            --bg-card: #FFFFFF;
-            --text-main: #1A1A1A;
-            --text-muted: #666666;
-            --border-soft: #EFEFEF;
+        /* Estilos específicos para impressão */
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+            /* Esconde as barras de rolagem */
+            ::-webkit-scrollbar {
+                display: none;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                min-height: auto !important;
+            }
         }
-
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-main);
-            font-family: 'Montserrat', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            overscroll-behavior-y: none;
-            background-image: radial-gradient(circle at 50% 0%, #FFFFFF 0%, rgba(212, 175, 55, 0.03) 100%);
-        }
-
-        h1, h2, h3, h4, .font-cinzel {
-            font-family: 'Cinzel', serif;
-        }
-
-        .text-gold {
-            background: linear-gradient(135deg, #C59B27 0%, var(--gold-main) 50%, var(--gold-dark) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        /* Botões */
-        .btn-gold {
-            background: transparent;
-            border: 1px solid var(--gold-main);
-            color: var(--gold-dark);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .btn-gold:active {
-            background: rgba(212, 175, 55, 0.1);
-            transform: scale(0.98);
-        }
-
-        .btn-solid-gold {
-            background: var(--gold-main);
-            color: #fff;
-            border: 1px solid var(--gold-main);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
-            cursor: pointer;
-        }
-        .btn-solid-gold:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
-        }
-        
-        .btn-solid-gold:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid #CCC;
-            color: #666;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .btn-ghost:active {
-            background: #F0F0F0;
-            transform: scale(0.98);
-        }
-
-        .input-elegant {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #DDD;
-            color: var(--text-main);
-            padding: 12px 0;
-            width: 100%;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1rem;
-            text-align: center;
-            transition: border-color 0.3s;
-        }
-        .input-elegant:focus {
-            outline: none;
-            border-bottom: 1px solid var(--gold-main);
-        }
-        
-        .textarea-elegant {
-            background: #F9F9F9;
-            border: 1px solid #E0E0E0;
-            color: var(--text-main);
-            padding: 15px;
-            width: 100%;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            transition: border-color 0.3s;
-            resize: none;
-        }
-        .textarea-elegant:focus {
-            outline: none;
-            border-color: var(--gold-main);
-            background: #FFF;
-        }
-
-        /* Cards do Menu */
-        .game-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-soft);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .game-card:active {
-            transform: scale(0.96);
-            border-color: var(--gold-main);
-            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.1);
-        }
-
-        /* Ecrãs */
-        .screen {
-            display: none;
-            animation: fadeIn 0.4s ease forwards;
-        }
-        .screen.active {
+        /* Efeito de marca de água */
+        .watermark {
+            position: absolute;
+            inset: 0;
             display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Área de Cartas dos Jogos */
-        .play-card {
-            background: #fff;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.04);
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2.5rem;
-            text-align: center;
-            position: relative;
-            width: 100%;
-        }
-        .play-card::before {
-            content: '';
-            position: absolute;
-            top: 5px; right: 5px; bottom: 5px; left: 5px;
-            border: 1px solid rgba(212, 175, 55, 0.1);
             pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.03; /* Muito subtil */
         }
-
-        .shot-badge {
-            background: #1A1A1A;
-            color: #D4AF37;
-            padding: 4px 12px;
-            font-size: 0.65rem;
-            text-transform: uppercase;
+        .watermark span {
+            font-size: 120px;
+            font-family: serif;
+            font-weight: bold;
+            transform: rotate(-45deg);
             letter-spacing: 0.1em;
-            position: absolute;
-            top: -10px;
-            border: 1px solid #D4AF37;
+            user-select: none;
+        }
+        @media print {
+            .watermark {
+                opacity: 0.05;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-slate-100 flex flex-col min-h-screen font-sans">
 
-    <!-- Header -->
-    <header id="main-header" class="w-full bg-white border-b border-gray-100 py-4 px-6 flex items-center justify-between sticky top-0 z-50 shadow-sm hidden">
-        <button id="btnBack" onclick="goHome()" class="text-gray-400 font-cinzel text-[0.65rem] uppercase tracking-widest hidden hover:text-[#D4AF37]">
-            ← Menu
-        </button>
-        <h1 class="font-cinzel text-xl text-gold tracking-widest absolute left-1/2 transform -translate-x-1/2">LIBERTINÉ</h1>
-        <button onclick="openSetup(true)" class="text-[#D4AF37] font-cinzel text-[0.65rem] uppercase tracking-widest flex items-center gap-1">
-            <span>🎭</span> Elenco
+    <!-- CABEÇALHO (Oculto na impressão) -->
+    <header class="bg-indigo-900 text-white p-4 shadow-md flex justify-between items-center no-print z-20 relative">
+        <div class="flex items-center gap-2">
+            <!-- Ícone de Documento -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+            <h1 class="text-xl font-bold tracking-wider">Scribe Pro Web</h1>
+        </div>
+        <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-sm font-medium">
+            <!-- Ícone de Impressora -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span class="hidden sm:inline">Imprimir / Salvar PDF</span>
         </button>
     </header>
 
-    <main class="flex-grow flex flex-col relative w-full max-w-2xl mx-auto p-4 md:p-8">
-
-        <!-- ================= ECRÃ 1: SETUP (ELENCO OBRIGATÓRIO) ================= -->
-        <section id="screen-setup" class="screen active flex-col w-full h-full items-center pt-8">
-            <h1 class="font-cinzel text-4xl text-gold mb-2 tracking-widest text-center">LIBERTINÉ</h1>
-            <h2 class="font-cinzel text-xl text-gray-800 mb-2 uppercase tracking-widest text-center mt-6">O Elenco</h2>
-            <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest text-center mb-8">Quem está na festa?<br>Mínimo de 3 convidados.</p>
-
-            <div class="flex gap-2 w-full max-w-sm mx-auto mb-6">
-                <input type="text" id="setup-input" placeholder="Ex: Maria" class="input-elegant flex-grow" onkeydown="if(event.key === 'Enter') addPlayer()">
-                <button onclick="addPlayer()" class="btn-solid-gold px-6 uppercase text-xs tracking-widest font-bold">Adicionar</button>
-            </div>
-
-            <p class="text-[0.65rem] text-gray-400 uppercase tracking-widest mb-2">Convidados: <span id="player-count" class="text-[#D4AF37] font-bold">0</span></p>
-            
-            <div id="setup-list" class="flex flex-wrap gap-2 justify-center w-full max-w-sm mx-auto mb-8 min-h-[120px] content-start"></div>
-
-            <button id="btn-enter-salon" onclick="enterSalon()" disabled class="btn-solid-gold w-full max-w-sm mx-auto py-4 uppercase tracking-widest text-sm font-bold transition-all">
-                Abrir Salão de Jogos
-            </button>
-            <button id="btn-return-menu" onclick="goHome()" class="btn-ghost w-full max-w-sm mx-auto py-3 uppercase tracking-widest text-xs mt-3 hidden">
-                Voltar ao Menu
-            </button>
-        </section>
-
-        <!-- ================= ECRÃ 2: MENU PRINCIPAL ================= -->
-        <section id="screen-menu" class="screen flex-col w-full h-full pb-8">
-            <div class="text-center mb-8 mt-2">
-                <h2 class="font-cinzel text-2xl text-gray-800 mb-2">Salão de Jogos</h2>
-                <p class="text-[0.65rem] text-gray-500 uppercase tracking-[0.2em]">Crie. Provoque. Beba.</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div onclick="openGame('eu-nunca')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">🍷</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Eu Nunca</h3>
-                    <p class="text-[0.6rem] text-gray-500">Invente um pecado.</p>
-                </div>
-                <div onclick="openGame('verdade-desafio')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">🎭</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Verdade / Desafio</h3>
-                    <p class="text-[0.6rem] text-gray-500">Desafie os seus pares.</p>
-                </div>
-                <div onclick="openGame('calice')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
-                    <span class="text-3xl mb-2">👑</span>
-                    <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Cálice da Verdade</h3>
-                    <p class="text-[0.6rem] text-gray-600">Revelações profundas ou punição.</p>
-                </div>
-                <div onclick="openGame('pandora')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center border-[#D4AF37] bg-[rgba(212,175,55,0.03)]">
-                    <span class="text-3xl mb-2">📦</span>
-                    <h3 class="font-cinzel text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Caixa de Pandora</h3>
-                    <p class="text-[0.6rem] text-gray-600">Confissões anónimas.</p>
-                </div>
-                <div onclick="openGame('tribunal')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">⚖️</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">O Tribunal</h3>
-                    <p class="text-[0.6rem] text-gray-500">Julgue quem é mais provável.</p>
-                </div>
-                <div onclick="openGame('roleta')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">🎯</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Roleta</h3>
-                    <p class="text-[0.6rem] text-gray-500">Cruzamentos do destino.</p>
-                </div>
-                <div onclick="openGame('mimica')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">🤫</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">Mímica</h3>
-                    <p class="text-[0.6rem] text-gray-500">Escolha a palavra secreta.</p>
-                </div>
-                <div onclick="openGame('espiao')" class="game-card p-4 rounded-sm cursor-pointer flex flex-col items-center text-center">
-                    <span class="text-3xl mb-2">🕵️</span>
-                    <h3 class="font-cinzel text-xs font-bold text-gray-800 uppercase tracking-widest mb-1">O Espião</h3>
-                    <p class="text-[0.6rem] text-gray-500">Um Mestre cria o local.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= ECRÃS DOS JOGOS ================= -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden no-print">
         
-        <!-- EU NUNCA -->
-        <section id="screen-eu-nunca" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-2xl text-gold mb-6 uppercase tracking-widest text-center">Eu Nunca</h2>
-            
-            <div id="en-phase-input" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">É a vez de inventar:</p>
-                <p id="en-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
-                <textarea id="en-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreve aqui o teu 'Eu nunca...'"></textarea>
-                <button onclick="submitEN()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Lançar para a Roda</button>
-            </div>
+        <!-- PAINEL DE CONTROLE / FORMULÁRIO (Oculto na impressão) -->
+        <aside class="w-full lg:w-1/3 xl:w-1/4 bg-white border-r border-slate-200 p-6 overflow-y-auto shadow-sm z-10">
+            <h2 class="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2 border-b pb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
+                Dados da Ata
+            </h2>
 
-            <div id="en-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-[0.6rem] text-gray-500 uppercase tracking-widest mb-4">Quem já fez, bebe 1 shot.</p>
-                <div class="play-card w-full mb-6">
-                    <p class="text-xs text-[#D4AF37] uppercase tracking-widest mb-4 font-bold">Eu Nunca...</p>
-                    <p id="en-text" class="font-cinzel text-2xl text-gray-800 leading-relaxed px-2"></p>
+            <form id="ataForm" class="space-y-5">
+                <!-- Seção: Institucional -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-medium text-slate-700">Nome do Capítulo</label>
+                    <input type="text" id="chapterName" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm"/>
                 </div>
-                <button onclick="nextTurnEN()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Jogador</button>
-            </div>
-        </section>
 
-        <!-- VERDADE OU DESAFIO -->
-        <section id="screen-verdade-desafio" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-2xl text-gold mb-6 uppercase tracking-widest text-center">Verdade ou<br>Desafio</h2>
-            
-            <div id="vd-phase-choice" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Na cadeira quente:</p>
-                <p id="vd-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
-                <p class="text-sm text-gray-600 mb-6">Faz a tua escolha.</p>
-                <div class="flex w-full gap-3">
-                    <button onclick="startInputVD('Verdade')" class="btn-gold flex-1 py-4 uppercase tracking-widest text-sm font-bold">Verdade</button>
-                    <button onclick="startInputVD('Desafio')" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-sm font-bold">Desafio</button>
-                </div>
-            </div>
-
-            <div id="vd-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Quem pergunta/desafia:</p>
-                <p id="vd-asker-player" class="font-cinzel text-2xl text-gold font-bold mb-6 uppercase tracking-widest">NOME</p>
-                <p id="vd-type-label" class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-widest"></p>
-                <textarea id="vd-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreve aqui a tua criatividade..."></textarea>
-                <button onclick="submitVD()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Lançar Carta</button>
-            </div>
-
-            <div id="vd-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <div class="play-card w-full mb-6">
-                    <p id="vd-card-type" class="text-xs text-[#D4AF37] uppercase tracking-widest mb-4 font-bold">TIPO</p>
-                    <p id="vd-text" class="font-cinzel text-2xl text-gray-800 leading-relaxed px-2"></p>
-                </div>
-                <button onclick="nextTurnVD()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Passar Turno</button>
-            </div>
-        </section>
-
-        <!-- O TRIBUNAL -->
-        <section id="screen-tribunal" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Tribunal</h2>
-            
-            <div id="tr-phase-input" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">O Juiz da vez:</p>
-                <p id="tr-turn-player" class="font-cinzel text-3xl text-gold font-bold mb-8 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
-                <p class="text-xs font-bold text-gray-600 mb-2 uppercase tracking-widest self-start">Quem é mais provável de...</p>
-                <textarea id="tr-input" rows="3" class="textarea-elegant mb-6" placeholder="Ex: chegar atrasado ao próprio casamento"></textarea>
-                <button onclick="submitTR()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Ler Acusação</button>
-            </div>
-
-            <div id="tr-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-[0.6rem] text-gray-500 uppercase tracking-[0.1em] text-center px-4 mb-4">Ao contar até 3, apontem para o culpado. O eleito bebe 1 shot.</p>
-                <div class="play-card w-full mb-6">
-                    <p class="font-cinzel text-xl text-gray-800 leading-relaxed px-2">Quem é mais provável de <span id="tr-text" class="font-bold text-gold"></span>?</p>
-                </div>
-                <button onclick="nextTurnTR()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próximo Juiz</button>
-            </div>
-        </section>
-
-        <!-- CÁLICE DA VERDADE -->
-        <section id="screen-calice" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Cálice da Verdade</h2>
-            
-            <div id="ca-phase-spin" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center">A roda escolhe a Vítima e quem formula a questão.</p>
-                <button onclick="spinCalice()" class="btn-solid-gold w-64 h-64 rounded-full font-cinzel text-2xl uppercase tracking-widest shadow-2xl flex items-center justify-center border-4 border-[#D4AF37] bg-white text-gold hover:bg-[#D4AF37] hover:text-white transition-all">
-                    Sortear Vítima
-                </button>
-            </div>
-
-            <div id="ca-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">A Vítima é:</p>
-                <p id="ca-victim" class="font-cinzel text-3xl text-gray-800 font-bold mb-6 uppercase tracking-widest">VÍTIMA</p>
-                <p class="text-xs text-gold uppercase tracking-widest mb-1">Quem faz a pergunta:</p>
-                <p id="ca-asker" class="font-cinzel text-xl text-gold font-bold mb-6 uppercase tracking-widest">NOME</p>
-                <textarea id="ca-input" rows="3" class="textarea-elegant mb-6" placeholder="Escreva a sua pergunta ousada ou confissão..."></textarea>
-                <button onclick="submitCalice()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Servir o Cálice</button>
-            </div>
-
-            <div id="ca-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-[0.6rem] text-gray-500 mb-4 uppercase tracking-[0.1em] text-center">Responda a verdade ou sofra a punição.</p>
-                <div class="play-card w-full mb-6 bg-[rgba(212,175,55,0.03)] border-[#D4AF37]">
-                    <div id="ca-shot-badge" class="shot-badge">2 Shots</div>
-                    <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Para: <span id="ca-victim-display" class="font-bold text-gray-800"></span></p>
-                    <p id="ca-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2"></p>
-                </div>
-                <div class="flex w-full gap-3">
-                    <button onclick="resetCalice()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs">Ocultar Segredo (Bebi)</button>
-                    <button onclick="resetCalice()" class="btn-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Verdade Revelada</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- CAIXA DE PANDORA -->
-        <section id="screen-pandora" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-2 uppercase tracking-widest text-center">Caixa de Pandora</h2>
-            
-            <div id="pandora-input-phase" class="w-full max-w-sm flex flex-col items-center w-full">
-                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Passe o telemóvel à roda. Cada um escreve uma inconfidência, segredo ou confissão anónima. Quando todos escreverem, abram a caixa.</p>
-                <p class="font-cinzel text-gold text-lg mb-2">Segredos Guardados: <span id="pandora-count">0</span></p>
-                <textarea id="pandora-input" rows="4" placeholder="Escreva uma pergunta intrigante ou confissão sobre alguém daqui..." class="textarea-elegant mb-4"></textarea>
-                <button onclick="submitPandora()" class="btn-gold w-full py-3 mb-6 uppercase tracking-widest text-xs font-bold">Guardar Escondido</button>
-                <div class="w-full h-px bg-gray-200 my-4"></div>
-                <button onclick="startPandoraRead()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Abrir a Caixa e Ler</button>
-            </div>
-
-            <div id="pandora-read-phase" class="w-full max-w-sm flex flex-col items-center w-full hidden">
-                <p class="text-[0.6rem] text-gray-500 mb-6 uppercase tracking-[0.1em] text-center px-4">Leiam em voz alta. Quem escreveu? Se o grupo não adivinhar, todos bebem 1 shot.</p>
-                <div class="play-card w-full mb-6 border-[#333] bg-[#050505]">
-                    <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">Confissão Anónima:</p>
-                    <p id="pandora-text" class="font-cinzel text-xl text-white leading-relaxed px-2"></p>
-                </div>
-                <button onclick="nextPandora()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Próxima Confissão</button>
-            </div>
-        </section>
-
-        <!-- ROLETA -->
-        <section id="screen-roleta" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">Roleta</h2>
-            
-            <div id="rl-phase-spin" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-[0.6rem] text-gray-500 mb-8 uppercase tracking-[0.1em] text-center">Dois destinos cruzados.</p>
-                <button onclick="spinRoleta()" class="btn-solid-gold w-64 h-64 rounded-full font-cinzel text-2xl uppercase tracking-widest shadow-2xl flex items-center justify-center border-4 border-[#D4AF37] bg-white text-gold hover:bg-[#D4AF37] hover:text-white transition-all">
-                    Girar Roleta
-                </button>
-            </div>
-
-            <div id="rl-phase-input" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-4">A Roda selecionou:</p>
-                <div class="flex items-center gap-4 mb-6 w-full justify-center">
-                    <p id="rl-p1" class="font-cinzel text-xl text-gold font-bold uppercase tracking-widest">P1</p>
-                    <p class="text-xs text-gray-400">&</p>
-                    <p id="rl-p2" class="font-cinzel text-xl text-gold font-bold uppercase tracking-widest">P2</p>
-                </div>
-                <p class="text-sm font-bold text-gray-800 mb-2 uppercase tracking-widest">O que eles devem fazer?</p>
-                <textarea id="rl-input" rows="3" class="textarea-elegant mb-6" placeholder="A roda decide a ação em conjunto. Escrevam aqui..."></textarea>
-                <button onclick="submitRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Selar Destino</button>
-            </div>
-
-            <div id="rl-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <div class="play-card w-full mb-6">
-                    <p class="font-cinzel text-2xl text-gold font-bold uppercase tracking-widest mb-4"><span id="rl-p1-disp"></span> <br><span class="text-sm text-gray-500">e</span><br> <span id="rl-p2-disp"></span></p>
-                    <p class="text-xs text-gray-500 uppercase tracking-widest mb-2 font-bold">Devem cumprir:</p>
-                    <p id="rl-text" class="font-cinzel text-xl text-gray-800 leading-relaxed px-2"></p>
-                </div>
-                <button onclick="resetRoleta()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Nova Roleta</button>
-            </div>
-        </section>
-
-        <!-- MÍMICA -->
-        <section id="screen-mimica" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">Mímica</h2>
-            
-            <div id="mi-phase-input" class="w-full max-w-sm flex flex-col items-center">
-                <div class="flex w-full justify-between mb-8 px-2">
-                    <div class="text-center">
-                        <p class="text-[0.55rem] text-gray-400 uppercase tracking-widest mb-1">O Ator:</p>
-                        <p id="mi-actor" class="font-cinzel text-lg text-gold font-bold uppercase tracking-widest">NOME</p>
+                <!-- Seção: Tempo e Local -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Data</label>
+                        <input type="date" id="date" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
                     </div>
-                    <div class="text-center">
-                        <p class="text-[0.55rem] text-gray-400 uppercase tracking-widest mb-1">O Autor:</p>
-                        <p id="mi-author" class="font-cinzel text-lg text-gray-800 font-bold uppercase tracking-widest">NOME</p>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Local</label>
+                        <input type="text" id="location" placeholder="Ex: Sede do Capítulo..." class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Início</label>
+                        <input type="time" id="startTime" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Término</label>
+                        <input type="time" id="endTime" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
                     </div>
                 </div>
-                <p class="text-sm font-bold text-gray-800 mb-2 uppercase tracking-widest">Palavra Secreta</p>
-                <input type="text" id="mi-input" class="input-elegant mb-6 text-xl" placeholder="Escreva a palavra (escondido)...">
-                <button onclick="submitMimica()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Guardar e Passar Telemóvel</button>
-            </div>
 
-            <div id="mi-phase-play" class="w-full max-w-sm flex flex-col items-center hidden">
-                <p class="text-[0.6rem] text-gray-500 mb-4 uppercase tracking-[0.1em] text-center">O telemóvel deve estar com o <span id="mi-actor-disp" class="font-bold"></span>.</p>
-                <div class="w-24 h-24 rounded-full border-2 border-[#D4AF37] flex items-center justify-center font-cinzel text-3xl text-gold mx-auto mb-6" id="mimica-timer">60</div>
-                <div class="play-card w-full mb-6 py-6 min-h-[150px]">
-                    <p id="mi-word" class="font-cinzel text-3xl font-bold text-gray-800 tracking-wider blur-sm transition-all duration-300">******</p>
-                </div>
-                <div class="flex w-full gap-3">
-                    <button onclick="nextTurnMI()" class="btn-ghost flex-1 py-4 uppercase tracking-widest text-xs font-bold">Desistir / Próximo</button>
-                    <button id="btn-mimica-start" onclick="startTimerMI()" class="btn-solid-gold flex-1 py-4 uppercase tracking-widest text-xs font-bold">Ver Palavra & Iniciar</button>
-                </div>
-            </div>
-        </section>
+                <hr class="my-4 border-slate-200" />
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Participantes
+                </h2>
 
-        <!-- O ESPIÃO -->
-        <section id="screen-espiao" class="screen flex-col w-full h-full items-center pt-4">
-            <h2 class="font-cinzel text-xl text-gold mb-6 uppercase tracking-widest text-center">O Espião</h2>
+                <!-- Seção: Participantes -->
+                <div class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Mestre Conselheiro</label>
+                        <input type="text" id="mcName" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Escrivão</label>
+                        <input type="text" id="scribeName" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-700">Irmãos Presentes</label>
+                        <textarea id="attendees" rows="3" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-y" placeholder="Nomes separados por vírgula..."></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-slate-200" />
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                    Deliberações
+                </h2>
+
+                <!-- Seção: Deliberações -->
+                <div class="space-y-3 pb-8">
+                    <p class="text-xs text-slate-500 mb-2">Digite o corpo principal da ata. Quebras de linha criarão novos parágrafos automaticamente no documento final.</p>
+                    <textarea id="deliberations" rows="12" class="w-full p-3 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-y font-serif leading-relaxed"></textarea>
+                </div>
+            </form>
+        </aside>
+
+        <!-- ÁREA DE VISUALIZAÇÃO DO DOCUMENTO -->
+        <section class="w-full lg:w-2/3 xl:w-3/4 bg-slate-200 p-4 lg:p-8 overflow-y-auto flex justify-center no-print">
             
-            <div id="espiao-phase-input" class="w-full max-w-sm flex flex-col items-center">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">O Mestre (Não joga esta ronda):</p>
-                <p id="es-master" class="font-cinzel text-3xl text-gold font-bold mb-6 uppercase tracking-widest border-b border-[#D4AF37] pb-2 px-6">NOME</p>
-                <p class="text-[0.6rem] text-gray-500 uppercase tracking-[0.1em] text-center px-2 mb-4">Mestre, escreve o Local Secreto (ex: Praia, Motel, Casamento). Os outros vão jogar para descobrir o Espião.</p>
-                <input type="text" id="es-input" class="input-elegant mb-6 text-xl" placeholder="Local Secreto...">
-                <button onclick="startEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Distribuir Identidades</button>
-            </div>
-
-            <div id="espiao-phase-play" class="w-full max-w-sm flex flex-col items-center hidden mt-2">
-                <p class="text-[0.65rem] text-gray-500 uppercase tracking-widest mb-4 font-bold text-[#D4AF37] text-center">
-                    Passe o telemóvel para: <br><span id="espiao-current-player" class="text-2xl text-gray-800 mt-1 block">NOME</span>
-                </p>
-                <div class="play-card w-full mb-6 cursor-pointer border-[#D4AF37]" onclick="toggleEspiaoReveal()">
-                    <div id="espiao-hidden" class="w-full h-full flex flex-col items-center justify-center">
-                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest border border-gray-300 px-6 py-3 rounded">Toque para revelar</p>
-                    </div>
-                    <div id="espiao-revealed" class="w-full h-full flex flex-col items-center justify-center hidden">
-                        <p class="text-[0.65rem] text-gray-500 uppercase mb-2 tracking-widest">A Localização é</p>
-                        <p id="espiao-word-display" class="font-cinzel text-3xl text-gold font-bold tracking-wider text-center leading-tight">PALAVRA</p>
-                        <p class="text-[0.6rem] text-red-400 font-bold uppercase mt-8 border-b border-red-400 pb-1">Toque novamente para esconder</p>
-                    </div>
+            <!-- Documento A4 (Será o único elemento visível ao imprimir através de CSS e JS) -->
+            <div id="printDocument" class="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] px-[20mm] py-[20mm] relative print-only-container">
+                
+                <!-- Marca d'água -->
+                <div class="watermark">
+                    <span>SCRIBE</span>
                 </div>
-                <button id="btn-espiao-next" onclick="nextEspiaoPlayer()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold hidden">
-                    Escondi. Próximo Jogador.
-                </button>
+
+                <!-- CONTEÚDO DO DOCUMENTO -->
+                <div class="relative z-10 font-serif text-black h-full flex flex-col">
+                    
+                    <!-- Cabeçalho superior pequeno -->
+                    <div class="flex justify-between text-[8px] sm:text-[10px] text-gray-500 mb-12">
+                        <span id="docHeaderDate"></span>
+                        <span class="font-semibold">Scribe Pro - Excelência em Escrivania DeMolay</span>
+                        <span></span> 
+                    </div>
+
+                    <!-- Título da Ata -->
+                    <div class="text-center mb-10">
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-wide">ATA DE REUNIÃO</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-wide mb-2">ADMINISTRATIVA</h1>
+                        <h2 id="docChapterName" class="text-xs sm:text-sm uppercase tracking-widest text-gray-700"></h2>
+                        <div class="w-48 h-[1px] bg-black mx-auto mt-4"></div>
+                    </div>
+
+                    <!-- Corpo da Ata -->
+                    <div class="text-sm sm:text-base text-justify leading-relaxed flex-1">
+                        
+                        <!-- Parágrafo de Abertura -->
+                        <p class="mb-6 indent-8">
+                            Aos <span id="docDate"></span>, na <span id="docLocation"></span>, reuniram-se os membros para sessão administrativa. Sob a presidência do Mestre Conselheiro, Irmão <span id="docMcNameOpening"></span> os trabalhos foram abertos em harmonia.
+                        </p>
+
+                        <!-- Lista de Presença -->
+                        <p class="mb-6">
+                            <span class="uppercase font-semibold tracking-wider block mb-2">Deliberações:</span>
+                            Instaurou-se a presente reunião às <span id="docStartTime"></span>, contando com a presença dos Irmãos: <span id="docAttendees"></span>.
+                        </p>
+
+                        <!-- Deliberações Dinâmicas -->
+                        <div id="docDeliberations"></div>
+
+                        <!-- Parágrafo de Encerramento -->
+                        <p class="mb-16 indent-8 mt-6">
+                            Nada mais havendo a tratar, o Mestre Conselheiro encerrou a sessão às <span id="docEndTime"></span> - de forma cordial, do que eu, Escrivão, lavrei a presente ata.
+                        </p>
+
+                    </div>
+
+                    <!-- Seção de Assinaturas -->
+                    <div class="flex justify-between items-end mt-12 pb-8 w-full max-w-[90%] mx-auto">
+                        <div class="flex flex-col items-center w-[45%]">
+                            <div class="w-full border-b border-black mb-2"></div>
+                            <span class="text-xs uppercase font-bold text-center">Irmão <span id="docMcNameSign"></span></span>
+                            <span class="text-[10px] uppercase tracking-widest text-center mt-1">Mestre Conselheiro</span>
+                        </div>
+
+                        <div class="flex flex-col items-center w-[45%]">
+                            <div class="w-full border-b border-black mb-2"></div>
+                            <span id="docScribeNameSign" class="text-xs uppercase font-bold text-center"></span>
+                            <span class="text-[10px] uppercase tracking-widest text-center mt-1">Escrivão</span>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé da Página -->
+                    <div class="mt-auto border-t border-gray-200 pt-4 flex justify-between text-[8px] sm:text-[10px] text-gray-400">
+                        <span>Gerado via Plataforma Scribe Web</span>
+                        <span>1/1</span>
+                    </div>
+
+                </div>
             </div>
         </section>
-
     </main>
 
-    <!-- Modal de Aviso -->
-    <div id="alertModal" class="fixed inset-0 modal-overlay z-[60] flex justify-center items-center hidden opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-white border border-[#D4AF37] p-6 w-full max-w-xs shadow-2xl text-center">
-            <p id="alertText" class="font-montserrat text-sm text-gray-800 mb-6 uppercase tracking-wider font-bold"></p>
-            <button onclick="closeAlert()" class="btn-solid-gold w-full py-3 uppercase tracking-widest text-xs font-bold">Entendido</button>
-        </div>
-    </div>
+    <!-- CONTAINER QUE SERÁ MOSTRADO NA IMPRESSÃO (Substitui o body) -->
+    <div id="printRoot" class="hidden print:block print:w-full"></div>
 
     <script>
-        // ================= ESTADO GLOBAL =================
-        let globalPlayers = [];
-        
-        let enIndex = 0;
-        let vdIndex = 0;
-        let trIndex = 0;
-        let miIndex = 0;
-        let esMasterIndex = 0;
+        // Dados Iniciais (Simulando o estado da aplicação)
+        const state = {
+            chapterName: 'CAPÍTULO TORRE DE VIGIA Nº 1154 - MINAS GERAIS',
+            date: '2028-03-21',
+            startTime: '15:15',
+            endTime: '15:40',
+            location: 'sede do Capítulo Torre de Vigia Nº 1154',
+            mcName: 'Hélio Jorge Neves',
+            scribeName: 'Daniel Ruas Miranda Barreto',
+            attendees: 'Davi Ferraz, Davi Alves Carvalho, Davi Alves Moreira, Daniel Ruas, Theo Oriebir e Hélio Jorge Neves',
+            deliberations: `O Mestre Conselheiro deliberou a realização de ações filantrópicas de impacto social. A iniciativa consiste em conciliar nossos horários para arrecadarmos o máximo de alimentos, visando a montagem de cestas básicas sem restrição de itens específicos. Primordialmente, o Mestre Conselheiro reforça seu compromisso em servir a todos, reiterando que nosso propósito é auxiliar quem precisa, independentemente de julgamentos de valor.\n\nNeste diapasão, visitaremos supermercados e doadores em potencial aos finais de semana. Além disso, houve uma sugestão por parte do Mestre Conselheiro para realizarmos uma atividade extracapitular na residência do Escrivão, que gentilmente ofereceu o espaço para uma confraternização com churrasco, piscina e jogos de tabuleiro.`
+        };
 
-        // ================= SISTEMA CORE =================
-        function addPlayer() {
-            const input = document.getElementById('setup-input');
-            const name = input.value.trim();
-            if(name && !globalPlayers.includes(name)) {
-                globalPlayers.push(name);
-                input.value = '';
-                renderPlayers();
-            }
-        }
+        // Elementos do DOM - Inputs
+        const inputs = {
+            chapterName: document.getElementById('chapterName'),
+            date: document.getElementById('date'),
+            startTime: document.getElementById('startTime'),
+            endTime: document.getElementById('endTime'),
+            location: document.getElementById('location'),
+            mcName: document.getElementById('mcName'),
+            scribeName: document.getElementById('scribeName'),
+            attendees: document.getElementById('attendees'),
+            deliberations: document.getElementById('deliberations')
+        };
 
-        function removePlayer(name) {
-            globalPlayers = globalPlayers.filter(p => p !== name);
-            renderPlayers();
-        }
-
-        function renderPlayers() {
-            const container = document.getElementById('setup-list');
-            const countEl = document.getElementById('player-count');
-            const btnEnter = document.getElementById('btn-enter-salon');
-            countEl.innerText = globalPlayers.length;
-
-            if (globalPlayers.length === 0) {
-                container.innerHTML = `<p class="text-[0.65rem] text-gray-400 italic uppercase tracking-widest mt-4">A lista está vazia.</p>`;
-            } else {
-                container.innerHTML = globalPlayers.map(p => 
-                    `<div class="bg-white px-4 py-2 rounded-sm border border-[#D4AF37] text-gray-800 text-xs flex items-center gap-3 shadow-sm font-bold tracking-widest uppercase">
-                        ${p} <button onclick="removePlayer('${p}')" class="text-red-500 hover:text-red-700 font-bold text-sm">×</button>
-                    </div>`
-                ).join('');
-            }
-
-            if (globalPlayers.length >= 3) {
-                btnEnter.disabled = false;
-                countEl.classList.add('text-green-500');
-                countEl.classList.remove('text-[#D4AF37]', 'text-red-500');
-            } else {
-                btnEnter.disabled = true;
-                countEl.classList.add('text-red-500');
-                countEl.classList.remove('text-green-500', 'text-[#D4AF37]');
-            }
-        }
-
-        function enterSalon() {
-            if (globalPlayers.length < 3) return;
-            globalPlayers.sort(() => Math.random() - 0.5);
+        // Função para formatar data (Ex: 21 de março de 2028)
+        function formatDate(dateString) {
+            if (!dateString) return '[DATA]';
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
             
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-menu').classList.add('active');
-            document.getElementById('main-header').classList.remove('hidden');
-            document.getElementById('btnBack').classList.add('hidden');
+            const date = new Date(parts[0], parts[1] - 1, parts[2]);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('pt-BR', options);
         }
 
-        function openSetup(isEditing = false) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-setup').classList.add('active');
-            document.getElementById('main-header').classList.add('hidden');
-            if(isEditing && globalPlayers.length >= 3) {
-                document.getElementById('btn-return-menu').classList.remove('hidden');
-                document.getElementById('btn-enter-salon').innerText = "Guardar Alterações";
-            }
-            renderPlayers();
-        }
-
-        function goHome() {
-            if (globalPlayers.length < 3) {
-                showAlert("Precisa de pelo menos 3 participantes no Elenco.");
-                return;
-            }
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-menu').classList.add('active');
-            document.getElementById('main-header').classList.remove('hidden');
-            document.getElementById('btnBack').classList.add('hidden');
-            clearInterval(mimicaInterval);
-        }
-
-        function openGame(gameId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(`screen-${gameId}`).classList.add('active');
-            document.getElementById('btnBack').classList.remove('hidden');
+        // Função para atualizar o documento de visualização
+        function updatePreview() {
+            document.getElementById('docChapterName').textContent = state.chapterName;
+            document.getElementById('docDate').textContent = formatDate(state.date);
+            document.getElementById('docLocation').textContent = state.location || '[LOCAL]';
+            document.getElementById('docStartTime').textContent = state.startTime || '[HH:MM]';
+            document.getElementById('docEndTime').textContent = state.endTime || '[HH:MM]';
             
-            if(gameId === 'eu-nunca') initEN();
-            if(gameId === 'verdade-desafio') initVD();
-            if(gameId === 'tribunal') initTR();
-            if(gameId === 'calice') resetCalice();
-            if(gameId === 'pandora') initPandora();
-            if(gameId === 'roleta') resetRoleta();
-            if(gameId === 'mimica') initMI();
-            if(gameId === 'espiao') initEspiao();
-        }
-
-        function getAnotherPlayer(exclude) {
-            let options = globalPlayers.filter(p => p !== exclude);
-            return options[Math.floor(Math.random() * options.length)];
-        }
-
-        function showAlert(msg) {
-            document.getElementById('alertText').innerText = msg;
-            const modal = document.getElementById('alertModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-        function closeAlert() {
-            const modal = document.getElementById('alertModal');
-            modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        // ================= EU NUNCA =================
-        function initEN() {
-            document.getElementById('en-phase-input').classList.remove('hidden');
-            document.getElementById('en-phase-play').classList.add('hidden');
-            document.getElementById('en-turn-player').innerText = globalPlayers[enIndex];
-            document.getElementById('en-input').value = '';
-        }
-        function submitEN() {
-            const text = document.getElementById('en-input').value.trim();
-            if(!text) { showAlert("Escreve o teu pecado primeiro!"); return; }
-            document.getElementById('en-text').innerText = text;
-            document.getElementById('en-phase-input').classList.add('hidden');
-            document.getElementById('en-phase-play').classList.remove('hidden');
-        }
-        function nextTurnEN() {
-            enIndex = (enIndex + 1) % globalPlayers.length;
-            initEN();
-        }
-
-        // ================= VERDADE OU DESAFIO =================
-        let vdCurrentTarget = '';
-        let vdCurrentType = '';
-        function initVD() {
-            vdCurrentTarget = globalPlayers[vdIndex];
-            document.getElementById('vd-phase-choice').classList.remove('hidden');
-            document.getElementById('vd-phase-input').classList.add('hidden');
-            document.getElementById('vd-phase-play').classList.add('hidden');
-            document.getElementById('vd-turn-player').innerText = vdCurrentTarget;
-            document.getElementById('vd-input').value = '';
-        }
-        function startInputVD(type) {
-            vdCurrentType = type;
-            const asker = getAnotherPlayer(vdCurrentTarget);
-            document.getElementById('vd-phase-choice').classList.add('hidden');
-            document.getElementById('vd-phase-input').classList.remove('hidden');
-            document.getElementById('vd-asker-player').innerText = asker;
-            document.getElementById('vd-type-label').innerText = `Inventa um(a) ${type} para o(a) ${vdCurrentTarget}:`;
-        }
-        function submitVD() {
-            const text = document.getElementById('vd-input').value.trim();
-            if(!text) { showAlert("Escreve algo primeiro!"); return; }
-            document.getElementById('vd-card-type').innerText = vdCurrentType;
-            document.getElementById('vd-text').innerText = text;
-            document.getElementById('vd-phase-input').classList.add('hidden');
-            document.getElementById('vd-phase-play').classList.remove('hidden');
-        }
-        function nextTurnVD() {
-            vdIndex = (vdIndex + 1) % globalPlayers.length;
-            initVD();
-        }
-
-        // ================= O TRIBUNAL =================
-        function initTR() {
-            document.getElementById('tr-phase-input').classList.remove('hidden');
-            document.getElementById('tr-phase-play').classList.add('hidden');
-            document.getElementById('tr-turn-player').innerText = globalPlayers[trIndex];
-            document.getElementById('tr-input').value = '';
-        }
-        function submitTR() {
-            const text = document.getElementById('tr-input').value.trim();
-            if(!text) { showAlert("A acusação não pode estar vazia!"); return; }
-            document.getElementById('tr-text').innerText = text;
-            document.getElementById('tr-phase-input').classList.add('hidden');
-            document.getElementById('tr-phase-play').classList.remove('hidden');
-        }
-        function nextTurnTR() {
-            trIndex = (trIndex + 1) % globalPlayers.length;
-            initTR();
-        }
-
-        // ================= CÁLICE DA VERDADE =================
-        function resetCalice() {
-            document.getElementById('ca-phase-spin').classList.remove('hidden');
-            document.getElementById('ca-phase-input').classList.add('hidden');
-            document.getElementById('ca-phase-play').classList.add('hidden');
-            document.getElementById('ca-input').value = '';
-        }
-        function spinCalice() {
-            const victim = globalPlayers[Math.floor(Math.random() * globalPlayers.length)];
-            const asker = getAnotherPlayer(victim);
+            document.getElementById('docMcNameOpening').textContent = state.mcName || '[NOME DO MESTRE CONSELHEIRO]';
+            document.getElementById('docMcNameSign').textContent = state.mcName || '________________________';
             
-            document.getElementById('ca-phase-spin').classList.add('hidden');
-            document.getElementById('ca-phase-input').classList.remove('hidden');
-            document.getElementById('ca-victim').innerText = victim;
-            document.getElementById('ca-asker').innerText = asker;
-        }
-        function submitCalice() {
-            const text = document.getElementById('ca-input').value.trim();
-            if(!text) { showAlert("A pergunta não pode estar vazia!"); return; }
+            document.getElementById('docScribeNameSign').textContent = state.scribeName || '________________________';
             
-            const shots = Math.floor(Math.random() * 2) + 1; // 1 a 2 shots aleatórios
-            document.getElementById('ca-shot-badge').innerText = `${shots} Shot${shots > 1 ? 's' : ''}`;
-            document.getElementById('ca-victim-display').innerText = document.getElementById('ca-victim').innerText;
-            document.getElementById('ca-text').innerText = text;
+            document.getElementById('docAttendees').textContent = state.attendees || '[LISTA DE IRMÃOS]';
 
-            document.getElementById('ca-phase-input').classList.add('hidden');
-            document.getElementById('ca-phase-play').classList.remove('hidden');
-        }
-
-        // ================= CAIXA DE PANDORA =================
-        let pandoraSecrets = [];
-        function initPandora() {
-            pandoraSecrets = [];
-            document.getElementById('pandora-count').innerText = 0;
-            document.getElementById('pandora-input-phase').classList.remove('hidden');
-            document.getElementById('pandora-read-phase').classList.add('hidden');
-            document.getElementById('pandora-input').value = '';
-        }
-        function submitPandora() {
-            const input = document.getElementById('pandora-input');
-            const secret = input.value.trim();
-            if (secret) {
-                pandoraSecrets.push(secret);
-                input.value = '';
-                document.getElementById('pandora-count').innerText = pandoraSecrets.length;
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = "Guardado!";
-                btn.style.borderColor = "#22c55e"; btn.style.color = "#22c55e";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.borderColor = "var(--gold-main)"; btn.style.color = "var(--gold-dark)";
-                }, 1000);
-            }
-        }
-        function startPandoraRead() {
-            if (pandoraSecrets.length === 0) { showAlert("A caixa está vazia."); return; }
-            pandoraSecrets.sort(() => Math.random() - 0.5);
-            document.getElementById('pandora-input-phase').classList.add('hidden');
-            document.getElementById('pandora-read-phase').classList.remove('hidden');
-            nextPandora();
-        }
-        function nextPandora() {
-            const el = document.getElementById('pandora-text');
-            if (pandoraSecrets.length === 0) {
-                el.innerHTML = "<span class='text-gray-500 text-sm'>A caixa está vazia.</span>";
-                return;
-            }
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.innerText = `"${pandoraSecrets.pop()}"`;
-                el.style.opacity = 1;
-            }, 300);
-        }
-
-        // ================= ROLETA =================
-        function resetRoleta() {
-            document.getElementById('rl-phase-spin').classList.remove('hidden');
-            document.getElementById('rl-phase-input').classList.add('hidden');
-            document.getElementById('rl-phase-play').classList.add('hidden');
-            document.getElementById('rl-input').value = '';
-        }
-        function spinRoleta() {
-            let p1 = globalPlayers[Math.floor(Math.random() * globalPlayers.length)];
-            let p2 = getAnotherPlayer(p1);
+            // Processar deliberações transformando quebras de linha em parágrafos HTML
+            const deliberationsContainer = document.getElementById('docDeliberations');
+            deliberationsContainer.innerHTML = '';
             
-            document.getElementById('rl-phase-spin').classList.add('hidden');
-            document.getElementById('rl-phase-input').classList.remove('hidden');
-            document.getElementById('rl-p1').innerText = p1;
-            document.getElementById('rl-p2').innerText = p2;
-        }
-        function submitRoleta() {
-            const text = document.getElementById('rl-input').value.trim();
-            if(!text) { showAlert("Escrevam o que eles devem fazer!"); return; }
-            
-            document.getElementById('rl-p1-disp').innerText = document.getElementById('rl-p1').innerText;
-            document.getElementById('rl-p2-disp').innerText = document.getElementById('rl-p2').innerText;
-            document.getElementById('rl-text').innerText = text;
-
-            document.getElementById('rl-phase-input').classList.add('hidden');
-            document.getElementById('rl-phase-play').classList.remove('hidden');
-        }
-
-        // ================= MÍMICA =================
-        let mimicaTimer = 60;
-        let mimicaInterval;
-        let isMimicaRunning = false;
-        
-        function initMI() {
-            const actor = globalPlayers[miIndex];
-            const author = getAnotherPlayer(actor);
-            
-            document.getElementById('mi-phase-input').classList.remove('hidden');
-            document.getElementById('mi-phase-play').classList.add('hidden');
-            document.getElementById('mi-actor').innerText = actor;
-            document.getElementById('mi-author').innerText = author;
-            document.getElementById('mi-input').value = '';
-            
-            clearInterval(mimicaInterval);
-            isMimicaRunning = false;
-        }
-        function submitMimica() {
-            const text = document.getElementById('mi-input').value.trim();
-            if(!text) { showAlert("O autor tem que escrever a palavra secreta!"); return; }
-            
-            document.getElementById('mi-actor-disp').innerText = document.getElementById('mi-actor').innerText;
-            document.getElementById('mi-word').innerText = text;
-            document.getElementById('mi-word').classList.add('blur-sm');
-            document.getElementById('mimica-timer').innerText = "60";
-            document.getElementById('btn-mimica-start').innerText = "Ver Palavra & Iniciar";
-            
-            document.getElementById('mi-phase-input').classList.add('hidden');
-            document.getElementById('mi-phase-play').classList.remove('hidden');
-        }
-        function startTimerMI() {
-            if(isMimicaRunning) return; 
-            
-            document.getElementById('mi-word').classList.remove('blur-sm');
-            document.getElementById('btn-mimica-start').innerText = "A decorrer...";
-            
-            isMimicaRunning = true;
-            mimicaTimer = 60;
-            mimicaInterval = setInterval(() => {
-                mimicaTimer--;
-                document.getElementById('mimica-timer').innerText = mimicaTimer;
-                if(mimicaTimer <= 0) {
-                    clearInterval(mimicaInterval);
-                    isMimicaRunning = false;
-                    document.getElementById('mi-word').innerText = "TEMPO!";
-                    document.getElementById('btn-mimica-start').innerText = "Tempo Esgotado";
+            const paragraphs = state.deliberations.split('\n');
+            paragraphs.forEach(paragraph => {
+                if (paragraph.trim() !== '') {
+                    const p = document.createElement('p');
+                    p.className = 'mb-6 indent-8';
+                    p.textContent = paragraph;
+                    deliberationsContainer.appendChild(p);
                 }
-            }, 1000);
-        }
-        function nextTurnMI() {
-            miIndex = (miIndex + 1) % globalPlayers.length;
-            initMI();
-        }
+            });
 
-        // ================= O ESPIÃO =================
-        let espiaoRoles = [];
-        let espiaoCurrentIndex = 0;
-        let esShuffledPlayers = [];
-
-        function initEspiao() {
-            document.getElementById('espiao-phase-input').classList.remove('hidden');
-            document.getElementById('espiao-phase-play').classList.add('hidden');
-            document.getElementById('es-master').innerText = globalPlayers[esMasterIndex];
-            document.getElementById('es-input').value = '';
+            // Atualizar cabeçalho superior com data atual
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR');
+            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('docHeaderDate').textContent = `${dateStr}, ${timeStr}`;
         }
 
-        function startEspiao() {
-            const master = globalPlayers[esMasterIndex];
-            const local = document.getElementById('es-input').value.trim();
-            if(!local) { showAlert("Mestre, escreva o local secreto primeiro!"); return; }
-
-            esShuffledPlayers = globalPlayers.filter(p => p !== master).sort(() => Math.random() - 0.5);
-            const count = esShuffledPlayers.length;
+        // Inicializar os inputs com o estado e adicionar eventos de 'input'
+        Object.keys(inputs).forEach(key => {
+            const input = inputs[key];
+            input.value = state[key]; // Preenche o valor inicial
             
-            espiaoRoles = Array(count).fill(local);
-            espiaoRoles[Math.floor(Math.random() * count)] = "Você é o ESPIÃO!";
-            
-            espiaoCurrentIndex = 0;
-            
-            document.getElementById('espiao-phase-input').classList.add('hidden');
-            document.getElementById('espiao-phase-play').classList.remove('hidden');
-            updateEspiaoScreen();
-        }
+            input.addEventListener('input', (e) => {
+                state[key] = e.target.value; // Atualiza o estado
+                updatePreview(); // Atualiza a pré-visualização
+            });
+        });
 
-        function updateEspiaoScreen() {
-            document.getElementById('espiao-current-player').innerText = esShuffledPlayers[espiaoCurrentIndex];
-            document.getElementById('espiao-hidden').classList.remove('hidden');
-            document.getElementById('espiao-revealed').classList.add('hidden');
-            document.getElementById('btn-espiao-next').classList.add('hidden');
-        }
+        // Configuração especial para impressão: clonar o documento para a raiz 
+        // para evitar que os estilos flexbox do layout interfiram na quebra de página
+        window.addEventListener('beforeprint', () => {
+            const printDocument = document.getElementById('printDocument');
+            const printRoot = document.getElementById('printRoot');
+            printRoot.innerHTML = ''; // Limpa anterior
+            printRoot.appendChild(printDocument.cloneNode(true));
+        });
 
-        function toggleEspiaoReveal() {
-            const hidden = document.getElementById('espiao-hidden');
-            const revealed = document.getElementById('espiao-revealed');
-            
-            if(!hidden.classList.contains('hidden')) {
-                hidden.classList.add('hidden');
-                revealed.classList.remove('hidden');
-                
-                const wordEl = document.getElementById('espiao-word-display');
-                const word = espiaoRoles[espiaoCurrentIndex];
-                wordEl.innerText = word;
-                
-                if(word.includes("ESPIÃO")) wordEl.classList.add('text-red-600');
-                else wordEl.classList.remove('text-red-600');
-
-                document.getElementById('btn-espiao-next').classList.remove('hidden');
-            } else {
-                hidden.classList.remove('hidden');
-                revealed.classList.add('hidden');
-            }
-        }
-
-        function nextEspiaoPlayer() {
-            const revealed = document.getElementById('espiao-revealed');
-            if(!revealed.classList.contains('hidden')) {
-                showAlert("Toque na carta para esconder a palavra antes de passar!");
-                return;
-            }
-
-            espiaoCurrentIndex++;
-            if(espiaoCurrentIndex >= espiaoRoles.length) {
-                esMasterIndex = (esMasterIndex + 1) % globalPlayers.length;
-                
-                document.getElementById('espiao-phase-play').innerHTML = `
-                    <div class="text-center py-10 w-full">
-                        <h3 class="font-cinzel text-2xl text-gold mb-4">A Caça Começou</h3>
-                        <p class="text-[0.65rem] text-gray-600 mb-8 px-4 uppercase tracking-widest font-bold">Façam perguntas sobre o local uns aos outros. Se o grupo descobrir o espião, o espião bebe 2 shots. Se o espião adivinhar o local, o grupo bebe.</p>
-                        <button onclick="initEspiao()" class="btn-solid-gold w-full py-4 uppercase tracking-widest text-sm font-bold">Nova Partida (Novo Mestre)</button>
-                    </div>
-                `;
-            } else {
-                updateEspiaoScreen();
-            }
-        }
-
-        renderPlayers();
+        // Chamada inicial para renderizar a primeira vez
+        updatePreview();
     </script>
 </body>
 </html>
+
